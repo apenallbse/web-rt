@@ -39,7 +39,7 @@ const KeuanganAdmin = () => {
 
   const totalMasuk = calculateTotal('Masuk');
   const totalKeluar = calculateTotal('Keluar');
-  const saldo = 14250000 + totalMasuk - totalKeluar - (1250000 - 210000 + 500000 - 85000); 
+  const saldo = totalMasuk - totalKeluar; 
 
   const handleEditTransaction = async (transaction: any) => {
     const { value: formValues } = await Swal.fire({

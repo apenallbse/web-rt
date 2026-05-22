@@ -1,10 +1,12 @@
 import React, { useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { dbService } from '../../services/dbService';
-import { User, Shield, Phone, MapPin, Calendar, CreditCard, Mail, Globe, Briefcase, GraduationCap, Heart, Info, Home, Edit2, Save, X, Clock, Camera, Trash2, Image as ImageIcon } from 'lucide-react';
+import { User, Shield, Phone, MapPin, Calendar, CreditCard, Mail, Globe, Briefcase, GraduationCap, Heart, Info, Home, Edit2, Save, X, Clock, Camera, Trash2, Image as ImageIcon, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
 import Avatar from '../../components/Avatar';
+import * as OTPAuth from 'otpauth';
+import { QRCodeSVG } from 'qrcode.react';
 
 const ILLUSTRATION_AVATARS = [
   'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
@@ -52,6 +54,13 @@ const WargaProfile = () => {
 
   const [isEditing, setIsEditing] = React.useState(false);
   const [formData, setFormData] = React.useState(() => profile || {} as any);
+  
+  const [setup2FA, setSetup2FA] = React.useState({
+    active: false,
+    secretRef: '',
+    uri: '',
+    code: ''
+  });
 
   React.useEffect(() => {
     if (profile && !isEditing) {
@@ -426,6 +435,94 @@ const WargaProfile = () => {
                     placeholder="Masukkan alamat lengkap secara manual..."
                   />
                 </div>
+              </div>
+
+              {/* Security Section (2FA) */}
+              <div className="lg:col-span-2 bg-white p-10 rounded-[3.5rem] border border-gray-100 shadow-sm space-y-8">
+                <h3 className="text-xl font-bold text-sky-dark flex items-center gap-3">
+                  <div className="p-2 bg-rose-50 text-rose-500 rounded-xl"><Lock size={20} /></div>
+                  Keamanan Akun (Otentikasi Dua Faktor)
+                </h3>
+                
+                <div className="flex items-center justify-between p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
+                   <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-rose-500 shadow-sm">
+                         <Shield size={20} />
+                      </div>
+                      <div>
+                         <p className="text-sm font-black text-slate-800">Aktifkan Kode 2FA (Google Authenticator)</p>
+                         <p className="text-[10px] text-slate-400 font-medium font-mono">Lapisan keamanan ekstra</p>
+                      </div>
+                   </div>
+                   <button 
+                      type="button"
+                      onClick={() => {
+                        if (formData.two_factor_enabled) {
+                          setFormData({ ...formData, two_factor_enabled: false, two_factor_secret: null });
+                          setSetup2FA({ active: false, secretRef: '', uri: '', code: '' });
+                        } else {
+                          const secret = new OTPAuth.Secret({ size: 20 });
+                          const totp = new OTPAuth.TOTP({
+                            issuer: "SkyRT",
+                            label: formData.email,
+                            algorithm: "SHA1",
+                            digits: 6,
+                            period: 30,
+                            secret: secret
+                          });
+                          setSetup2FA({ ...setup2FA, active: true, secretRef: secret.base32, uri: totp.toString() });
+                        }
+                      }}
+                      className={`w-12 h-6 rounded-full transition-all relative ${formData.two_factor_enabled || setup2FA.active ? 'bg-rose-500' : 'bg-slate-200'}`}
+                    >
+                      <motion.div 
+                        animate={{ x: formData.two_factor_enabled || setup2FA.active ? 26 : 4 }}
+                        initial={false}
+                        className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm"
+                      />
+                   </button>
+                </div>
+
+                {setup2FA.active && !formData.two_factor_enabled && (
+                 <div className="p-6 mt-4 border border-rose-200 bg-rose-50 rounded-2xl flex flex-col items-center gap-4">
+                   <p className="text-sm font-bold text-rose-600 text-center">Scan QR Code dengan Google Authenticator</p>
+                   <div className="p-4 bg-white rounded-xl shadow-sm">
+                     <QRCodeSVG value={setup2FA.uri} size={150} />
+                   </div>
+                   <input 
+                     type="text" 
+                     className="px-4 py-2 text-center text-xl tracking-widest font-mono bg-white border border-rose-200 text-rose-700 rounded-lg outline-none"
+                     placeholder="000000"
+                     maxLength={6}
+                     value={setup2FA.code}
+                     onChange={(e) => setSetup2FA({ ...setup2FA, code: e.target.value.replace(/\D/g, '') })}
+                   />
+                   <button 
+                     type="button"
+                     onClick={() => {
+                        let totp = new OTPAuth.TOTP({
+                          issuer: "SkyRT",
+                          label: formData.email,
+                          algorithm: "SHA1",
+                          digits: 6,
+                          period: 30,
+                          secret: OTPAuth.Secret.fromBase32(setup2FA.secretRef)
+                        });
+                        const delta = totp.validate({ token: setup2FA.code, window: 1 });
+                        if (delta !== null) {
+                          setFormData({ ...formData, two_factor_enabled: true, two_factor_secret: setup2FA.secretRef });
+                          setSetup2FA({ ...setup2FA, active: false });
+                          Swal.fire('Berhasil', '2FA telah diaktifkan.', 'success');
+                        } else {
+                          Swal.fire('Kode Salah', 'Kode Autentikator Google tidak valid.', 'error');
+                        }
+                     }}
+                     className="px-6 py-2 bg-rose-500 text-white font-bold rounded-lg hover:bg-rose-600 transition-colors cursor-pointer"
+                   >
+                     Verifikasi & Aktifkan
+                   </button>
+                 </div>
+               )}
               </div>
             </div>
 

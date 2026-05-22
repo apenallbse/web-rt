@@ -386,59 +386,117 @@ const SuratAdmin = () => {
           </div>
 
           <div className="w-full flex justify-center pb-24">
-            <div className="bg-white shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-200 p-12 md:p-20 w-full max-w-[21cm] min-h-[29.7cm] text-black">
-              {/* Header / Kop */}
-              <div className="text-center border-b-4 border-black pb-8 space-y-1">
-                <h1 className="text-2xl font-black uppercase">Rukun Tetangga {rtProfile.no_rt}</h1>
-                <h2 className="text-xl font-bold uppercase">Sekretariat: {rtProfile.alamat}</h2>
-                <p className="text-sm font-medium">Telepon: {rtProfile.telepon} | Email: {rtProfile.email} | Kode Pos: {rtProfile.kode_pos}</p>
+            {(() => {
+              const targetWarga = wargas.find(w => w.id === selectedForPrint.warga_id);
+              return (
+                <div className="bg-white shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-200 p-12 md:p-16 w-full max-w-[21cm] min-h-[29.7cm] text-black font-serif text-sm leading-relaxed">
+            {/* Header / Kop Surat */}
+            <div className="flex border-b-4 border-double border-black pb-4 mb-2">
+              <div className="flex-1 text-center pr-12 space-y-0.5">
+                <h1 className="text-xl font-bold uppercase tracking-wider">
+                  RUKUN TETANGGA {rtProfile.no_rt || "....."} / RUKUN WARGA {rtProfile.rw || "...."}
+                </h1>
+                <h2 className="text-lg font-bold uppercase tracking-wider">
+                  KELURAHAN {rtProfile.kelurahan || "......................."}
+                </h2>
+                <h3 className="text-md font-bold uppercase tracking-wider">
+                  KECAMATAN {rtProfile.kecamatan || "......................."} 
+                  {rtProfile.kota ? ` - KOTA ${rtProfile.kota.toUpperCase()}` : " - ......................................."}
+                </h3>
+                <p className="text-xs font-normal mt-2 leading-relaxed">
+                  Sekretariat: {rtProfile.alamat || "..................."} <br />
+                  Telp: {rtProfile.telepon || "..................."} | Email: {rtProfile.email || "..................."} | Kode Pos: {rtProfile.kode_pos || "......"}
+                </p>
+              </div>
+            </div>
+
+            {/* Title */}
+            <div className="text-center pt-8 font-bold space-y-1">
+              <h3 className="text-base underline uppercase">SURAT PENGANTAR</h3>
+              <p className="text-sm">
+                NOMOR: {selectedForPrint.no_surat || "......................................."}
+              </p>
+            </div>
+
+            {/* Content */}
+            <div className="space-y-4 pt-8 text-sm">
+              <p className="ml-10">Yang bertanda tangan di bawah ini, menerangkan bahwa:</p>
+              
+              <div className="grid grid-cols-[180px_10px_1fr] gap-y-3.5 ml-4 mt-6">
+                <span>Nama</span>
+                <span>:</span>
+                <span className="border-b-[1.5px] border-dotted border-black/50 pb-0.5 font-bold uppercase">{getWargaName(selectedForPrint.warga_id) || "..................................................."}</span>
+
+                <span>Tempat/Tgl. Lahir</span>
+                <span>:</span>
+                <span className="border-b-[1.5px] border-dotted border-black/50 pb-0.5">
+                  {targetWarga?.tempat_lahir || "........................."} / {targetWarga?.tanggal_lahir ? new Date(targetWarga.tanggal_lahir).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : "........................."}
+                </span>
+
+                <span>Jenis Kelamin</span>
+                <span>:</span>
+                <span className="border-b-[1.5px] border-dotted border-black/50 pb-0.5">{targetWarga?.jenis_kelamin || "Laki-laki/Perempuan"}</span>
+
+                <span>Agama</span>
+                <span>:</span>
+                <span className="border-b-[1.5px] border-dotted border-black/50 pb-0.5">{targetWarga?.religion || targetWarga?.agama || "..................................................."}</span>
+
+                <span>Pekerjaan</span>
+                <span>:</span>
+                <span className="border-b-[1.5px] border-dotted border-black/50 pb-0.5">{targetWarga?.jenis_pekerjaan || "..................................................."}</span>
+
+                <span>Nomor KTP</span>
+                <span>:</span>
+                <span className="border-b-[1.5px] border-dotted border-black/50 pb-0.5 font-mono tracking-wider">{targetWarga?.nik || "..................................................."}</span>
+
+                <span>Alamat</span>
+                <span>:</span>
+                <span className="border-b-[1.5px] border-dotted border-black/50 pb-0.5">{targetWarga?.alamat || "..................................................."}</span>
+
+                <span>Keperluan</span>
+                <span>:</span>
+                <span className="border-b-[1.5px] border-dotted border-black/50 pb-0.5">{selectedForPrint.keterangan || "..................................................."}</span>
               </div>
 
-              {/* Title */}
-              <div className="text-center pt-10">
-                <h3 className="text-xl font-black underline uppercase">{selectedForPrint.jenis_surat}</h3>
-                <p className="text-sm font-bold mt-2">Nomor: {selectedForPrint.no_surat || `${selectedForPrint.id.toUpperCase()}/RT${rtProfile.no_rt}/${new Date().getFullYear()}`}</p>
+              <p className="pt-8 text-justify">
+                Demikian surat pengantar ini dibuat untuk dapat dipergunakan sebagaimana mestinya dan yang berkepentingan untuk menjadi maklum.
+              </p>
+            </div>
+
+            {/* Dual Signatures */}
+            <div className="pt-12 text-sm">
+              <div className="mb-6">
+                <p>Nomor : ............................</p>
+                <p>Tanggal : ............................</p>
               </div>
 
-              {/* Content */}
-              <div className="space-y-8 pt-12 leading-[1.8] text-base">
-                <p>Yang bertanda tangan di bawah ini, Pengurus RT {rtProfile.no_rt}, dengan ini menerangkan bahwa:</p>
-                
-                <div className="grid grid-cols-[160px_20px_1fr] gap-y-4 ml-4">
-                  <span className="font-bold">Nama</span>
-                  <span>:</span>
-                  <span className="font-black capitalize text-lg">{getWargaName(selectedForPrint.warga_id)}</span>
-
-                  <span className="font-bold">NIK</span>
-                  <span>:</span>
-                  <span className="font-medium">{wargas.find(w => w.id === selectedForPrint.warga_id)?.nik || '-'}</span>
-
-                  <span className="font-bold">Alamat</span>
-                  <span>:</span>
-                  <span className="font-medium">{wargas.find(w => w.id === selectedForPrint.warga_id)?.alamat || '-'}</span>
-                  
-                  <span className="font-bold">Keperluan</span>
-                  <span>:</span>
-                  <span className="font-bold italic border-b-2 border-black/10 inline-block">{selectedForPrint.keterangan}</span>
+              <div className="grid grid-cols-2 gap-8 text-center mt-2">
+                {/* Left Column: Ketua RW */}
+                <div className="flex flex-col justify-between h-36">
+                  <div>
+                    <p>KETUA RW {rtProfile.rw || "......"}</p>
+                    <p>KELURAHAN {rtProfile.kelurahan?.toUpperCase() || "......................."}</p>
+                  </div>
+                  <div>
+                    <p className="border-b border-dotted border-black/50 pb-1 mb-1 text-transparent">.</p>
+                  </div>
                 </div>
 
-                <p className="pt-4">Demikian surat pengantar ini diberikan untuk dapat dipergunakan sebagaimana mestinya. Atas perhatiannya kami ucapkan terima kasih.</p>
-              </div>
-
-              {/* Footer / Tanda Tangan */}
-              <div className="pt-28 flex justify-end">
-                <div className="text-center w-80 space-y-20">
+                {/* Right Column: Ketua RT */}
+                <div className="flex flex-col justify-between h-36">
                   <div>
-                    <p className="font-medium text-base">{rtProfile.kota.replace('Kota ', '')}, {new Date(selectedForPrint.tanggal_pengajuan).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                    <p className="font-black text-lg mt-1">Ketua Rukun Tetangga {rtProfile.no_rt}</p>
+                    <p>KETUA RT {rtProfile.no_rt || "...."} / {rtProfile.rw || "......."}</p>
+                    <p>KELURAHAN {rtProfile.kelurahan?.toUpperCase() || "......................."}</p>
                   </div>
-                  <div className="space-y-1">
-                    <p className="font-black underline uppercase text-lg">{rtProfile.nama_ketua}</p>
-                    <p className="text-xs font-bold text-gray-500 tracking-widest uppercase">Jabatan: Ketua RT {rtProfile.no_rt}</p>
+                  <div>
+                    <p className="border-b border-dotted border-black/50 pb-1 mb-1 font-bold uppercase">{rtProfile.nama_ketua || ".........................................................."}</p>
                   </div>
                 </div>
               </div>
             </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}

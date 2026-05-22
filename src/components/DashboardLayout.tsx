@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { dbService } from '../services/dbService';
 import Avatar from './Avatar';
+import AppLogo from './AppLogo';
 
 const DashboardLayout = () => {
   const { user, logout } = useAuth();
@@ -26,11 +27,13 @@ const DashboardLayout = () => {
 
   // Get current profile for avatar
   const [profile, setProfile] = React.useState<any>(null);
+  const [rtProfile, setRtProfile] = React.useState<any>(dbService.getRTProfile());
 
   React.useEffect(() => {
     const loadProfile = () => {
+      const adminData = dbService.getRTProfile();
+      setRtProfile(adminData);
       if (user?.role === 'admin') {
-        const adminData = dbService.getRTProfile();
         setProfile({ name: adminData.nama_ketua, avatar_url: adminData.avatar_url, id: 'admin' });
       } else if (user?.role === 'warga' && user?.email) {
         const wargaData = dbService.getOrCreateWarga(user.email);
@@ -84,12 +87,16 @@ const DashboardLayout = () => {
       {/* Sidebar */}
       <aside className="w-64 bg-[#0f172a] text-slate-300 flex flex-col shrink-0 overflow-hidden">
         <div className="p-6 flex items-center space-x-3 text-white">
-          <div className="w-10 h-10 bg-[#1d4ed8] rounded-xl flex items-center justify-center font-bold text-xl shadow-lg shadow-blue-900/50">
-            S
+          <div className="w-10 h-10 flex items-center justify-center font-bold text-xl shadow-lg rounded-full">
+            <AppLogo size={40} />
           </div>
           <div className="leading-none">
-            <h1 className="text-xl font-bold tracking-tight text-[#bae6fd]">SkyRT</h1>
-            <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Management System</p>
+            <h1 className="text-xl font-bold tracking-tight text-[#bae6fd]">
+              RT 06
+            </h1>
+            <p className="text-[10px] text-sky-400 font-bold uppercase tracking-widest mt-1 truncate max-w-[150px]">
+              T. Putih
+            </p>
           </div>
         </div>
 

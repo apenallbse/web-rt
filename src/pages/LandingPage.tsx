@@ -15,6 +15,7 @@ const LandingPage = () => {
 
   const kk = useMemo(() => dbService.getKK(), []);
   const iuran = useMemo(() => dbService.getIuran(), []);
+  const rtProfile = useMemo(() => dbService.getRTProfile(), []);
 
   const totalIuran = useMemo(() => {
     // Match Admin Dashboard logic: Monthly Collected Iuran
@@ -59,94 +60,80 @@ const LandingPage = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section id="beranda" className="relative pt-40 pb-32 overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/2 h-full sky-soft-gradient opacity-10 blur-3xl -z-10 rounded-full translate-x-1/2 -translate-y-1/2"></div>
-        <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <section id="beranda" className="relative pt-40 pb-32 overflow-hidden bg-white">
+        {/* Background Patterns */}
+        <div className="absolute top-0 right-0 w-2/3 h-[800px] bg-gradient-to-br from-sky-400 via-sky-300 to-emerald-200 opacity-20 blur-[120px] rounded-full translate-x-1/3 -translate-y-1/4"></div>
+        <div className="absolute bottom-0 left-0 w-1/2 h-[600px] bg-gradient-to-tr from-blue-600 to-sky-400 opacity-10 blur-[100px] rounded-full -translate-x-1/3 translate-y-1/3"></div>
+
+        <div className="max-w-7xl mx-auto px-8 relative z-10 flex flex-col items-center text-center">
           <motion.div 
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flex flex-col items-center"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-sky-soft/30 text-sky-dark rounded-full text-xs font-black uppercase tracking-[0.2em] mb-6 border border-sky-main/10 shadow-sm">
-              <span className="w-1.5 h-1.5 bg-sky-main rounded-full animate-pulse"></span>
-              Platform Management RT #1 di Indonesia
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-sky-50 to-emerald-50 text-sky-700 border border-sky-100 rounded-full text-xs md:text-sm font-black uppercase tracking-[0.2em] mb-8 shadow-sm">
+              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+              Portal Integrasi Warga RT {rtProfile?.no_rt || "06"}
             </div>
-            <h1 className="text-6xl lg:text-8xl font-black text-sky-dark leading-[0.9] tracking-tighter">
-              Kelola RT <br />
-              <span className="text-sky-main">Lebih Modern.</span>
+            
+            <h1 className="text-6xl md:text-8xl lg:text-[7.5rem] font-black text-slate-800 leading-[0.95] tracking-tighter mb-8">
+              Koneksi Warga, <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-emerald-500">
+                Aksi Nyata.
+              </span>
             </h1>
-            <p className="mt-10 text-xl text-gray-500 leading-relaxed max-w-lg font-medium">
-              Ubah birokrasi manual menjadi sistem digital yang transparan, aman, dan dapat diakses dari mana saja oleh warga maupun pengurus.
+            
+            <p className="text-lg md:text-2xl text-slate-500 leading-relaxed max-w-3xl font-medium mb-12">
+              Platform modern yang menyatukan transparansi iuran, administrasi digital, dan kebersamaan warga dalam satu genggaman.
             </p>
-            <div className="mt-12 flex flex-col sm:flex-row gap-5">
+            
+            <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
               <button 
                 onClick={() => navigate('/login')}
-                className="px-10 py-5 sky-gradient text-white rounded-[2rem] font-black text-lg shadow-2xl shadow-sky-main/30 hover:scale-105 transition-transform flex items-center justify-center gap-3"
+                className="group relative px-12 py-5 bg-slate-900 text-white rounded-full font-black text-lg overflow-hidden shadow-2xl hover:shadow-sky-500/30 transition-all hover:-translate-y-1"
               >
-                Coba Sekarang <ArrowRight size={22} />
-              </button>
-              <button 
-                onClick={() => document.getElementById('fitur')?.scrollIntoView({ behavior: 'smooth' })}
-                className="px-10 py-5 bg-white text-sky-dark rounded-[2rem] font-black text-lg shadow-xl shadow-gray-200/50 border border-gray-100 hover:bg-gray-50 transition-all flex items-center justify-center gap-3"
-              >
-                Lihat Demo
+                <div className="absolute inset-0 bg-gradient-to-r from-sky-500 to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <span className="relative z-10 flex items-center justify-center gap-3">
+                  Masuk / Login <ArrowRight className="group-hover:translate-x-1 transition-transform" size={22} />
+                </span>
               </button>
             </div>
           </motion.div>
           
           <motion.div 
-            initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
-            whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="relative"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 1, ease: "easeOut" }}
+            className="w-full max-w-6xl mt-20 relative"
           >
-            {/* Float Cards */}
-            <div className="absolute -top-10 -left-10 bg-white p-6 rounded-3xl shadow-2xl z-10 border border-gray-50 animate-bounce-slow">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center">
-                  <CreditCard size={24} />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Iuran Bulan Ini</p>
-                  <p className="text-xl font-black text-sky-dark">Rp {totalIuran.toLocaleString('id-ID')}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="absolute -bottom-6 -right-6 bg-white p-6 rounded-3xl shadow-2xl z-10 border border-gray-50 animate-pulse-slow">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center">
-                  <Users size={24} />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Warga</p>
-                  <p className="text-xl font-black text-sky-dark">{kk.length} KK</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-[3.5rem] shadow-2xl shadow-sky-dark/5 border border-gray-100 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-sky-main opacity-0 group-hover:opacity-[0.02] transition-opacity"></div>
-              <div className="bg-gray-50 rounded-[2.5rem] p-10 aspect-[4/3] flex flex-col justify-center gap-8 border border-gray-100/50">
-                <div className="grid grid-cols-2 gap-6">
-                  {features.map((f, i) => (
-                    <motion.a 
-                      key={i}
-                      href={f.href}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.1 }}
-                      className="p-8 bg-white rounded-[2rem] shadow-sm border border-gray-100 flex flex-col items-center gap-4 group-hover:shadow-xl transition-all hover:scale-[1.05] cursor-pointer"
-                    >
-                      <div className={`p-4 ${f.color} rounded-2xl transform group-hover:rotate-6 transition-transform`}>{f.icon}</div>
-                      <span className="font-bold text-sky-dark text-sm">{f.title}</span>
-                    </motion.a>
-                  ))}
-                </div>
-              </div>
+            {/* Visual Glassmorphism Dashboard Preview/Cards */}
+            <div className="relative rounded-[3rem] p-4 bg-slate-50/50 backdrop-blur-3xl border border-white/60 shadow-[0_40px_100px_-20px_rgba(14,165,233,0.15)] overflow-hidden">
+               <div className="absolute inset-0 bg-gradient-to-b from-white to-transparent opacity-50"></div>
+               <div className="relative bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-100/80 shadow-inner overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-5">
+                    <ShieldCheck size={200} />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+                    {features.map((f, i) => (
+                      <motion.a 
+                        key={i}
+                        href={f.href}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.6 + (i * 0.1) }}
+                        className="p-8 bg-slate-50/50 hover:bg-white rounded-3xl border border-slate-100 transition-all group hover:shadow-2xl hover:shadow-sky-500/5 hover:-translate-y-2 cursor-pointer flex flex-col items-start gap-5"
+                      >
+                        <div className={`p-4 ${f.color} rounded-2xl transform group-hover:scale-110 transition-transform`}>{f.icon}</div>
+                        <div>
+                          <h3 className="font-bold text-slate-800 text-lg mb-2">{f.title}</h3>
+                          <p className="text-sm font-medium text-slate-500 leading-relaxed">{f.description}</p>
+                        </div>
+                      </motion.a>
+                    ))}
+                  </div>
+               </div>
             </div>
           </motion.div>
         </div>
@@ -198,7 +185,7 @@ const LandingPage = () => {
       {/* About Section */}
       <section id="tentang" className="py-32 bg-white">
         <div className="max-w-7xl mx-auto px-8 flex flex-col lg:flex-row items-center gap-20">
-          <div className="lg:w-1/2">
+          <div className="lg:w-1/2 w-full max-w-[500px] mx-auto">
             <div className="relative group">
               <div className="absolute -top-10 -right-10 w-64 h-64 bg-sky-main/10 rounded-full blur-3xl animate-pulse"></div>
               <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-blue-600/10 rounded-full blur-3xl"></div>
@@ -220,11 +207,11 @@ const LandingPage = () => {
                 </div>
               </motion.div>
 
-              <div className="relative z-10 rounded-[3rem] overflow-hidden shadow-2xl shadow-sky-dark/20 border-8 border-white">
+              <div className="relative z-10 rounded-[3rem] overflow-hidden shadow-2xl shadow-sky-dark/20 border-8 border-white mx-auto max-w-[500px] w-full">
                 <img 
-                  src="https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=1200" 
+                  src={rtProfile?.tentang_gambar || "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=1200"} 
                   alt="SkyRT Digital Team" 
-                  className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                  className="w-full h-[350px] object-cover object-center transform group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-sky-dark/40 to-transparent"></div>
               </div>
@@ -239,14 +226,20 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="lg:w-1/2">
-            <h2 className="text-4xl md:text-5xl font-black text-sky-dark mb-8 tracking-tight">Solusi Digital <br/> Untuk Masa Depan.</h2>
-            <p className="text-gray-500 text-lg leading-relaxed mb-8 font-medium">
-              SkyRT lahir dari keresahan pengurus RT terhadap sistem administrasi yang masih manual dan sulit dipantau. Kami menghadirkan platform yang mempermudah transparansi keuangan dan pendataan warga secara efisien.
+            <h2 className="text-4xl md:text-5xl font-black text-sky-dark mb-8 tracking-tight whitespace-pre-wrap">
+              {rtProfile?.tentang_judul || "Solusi Digital \nUntuk Masa Depan."}
+            </h2>
+            <p className="text-gray-500 text-lg leading-relaxed mb-8 font-medium whitespace-pre-wrap">
+              {rtProfile?.tentang_teks || "SkyRT lahir dari keresahan pengurus RT terhadap sistem administrasi yang masih manual dan sulit dipantau. Kami menghadirkan platform yang mempermudah transparansi keuangan dan pendataan warga secara efisien."}
             </p>
             <div className="space-y-4">
-              {['Visi: Digitalisasi RT di seluruh Indonesia', 'Misi: Memberdayakan pengurus dengan alat modern', 'Nilai: Aman, Terpercaya, dan Transparan'].map((text, i) => (
+              {[
+                `Visi: ${rtProfile?.tentang_visi || 'Digitalisasi RT di seluruh Indonesia'}`,
+                `Misi: ${rtProfile?.tentang_misi || 'Memberdayakan pengurus dengan alat modern'}`,
+                `Nilai: ${rtProfile?.tentang_nilai || 'Aman, Terpercaya, dan Transparan'}`
+              ].map((text, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <div className="w-6 h-6 bg-sky-main rounded-full flex items-center justify-center text-white">
+                  <div className="w-6 h-6 bg-sky-main rounded-full flex items-center justify-center text-white shrink-0">
                     <ShieldCheck size={14} />
                   </div>
                   <p className="font-bold text-sky-dark">{text}</p>
@@ -263,7 +256,7 @@ const LandingPage = () => {
         <div className="max-w-4xl mx-auto px-8 text-center relative z-10">
           <h2 className="text-4xl md:text-6xl font-black text-white mb-8 tracking-tighter">Siap Modernisasi RT Anda?</h2>
           <p className="text-sky-soft text-xl font-medium mb-12 max-w-2xl mx-auto opacity-90">
-            Bergabunglah dengan ratusan pengurus RT lainnya yang telah beralih ke sistem digital SkyRT.
+            Bergabunglah dengan ratusan pengurus RT lainnya yang telah beralih ke sistem digital.
           </p>
           <button 
             onClick={() => window.open('https://wa.me/6285280136056', '_blank')}

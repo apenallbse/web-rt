@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Mail, Phone, MapPin, Facebook, Twitter, Instagram, ArrowRight } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, ArrowRight } from 'lucide-react';
+import AppLogo from './AppLogo';
 
 const Footer = () => {
   return (
@@ -13,12 +14,14 @@ const Footer = () => {
           {/* Brand Column */}
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 sky-gradient rounded-xl flex items-center justify-center shadow-lg">
-                <Shield className="text-white" size={20} />
+              <div className="w-12 h-12 flex items-center justify-center shadow-lg rounded-full">
+                <AppLogo size={48} />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-black text-white leading-tight tracking-tight">SkyRT</span>
-                <span className="text-[10px] uppercase font-bold text-sky-light tracking-widest -mt-0.5">Management System</span>
+                <span className="text-xl font-black text-white leading-tight tracking-tight flex items-center gap-2">
+                  RT 06 <span className="text-[12px] uppercase font-bold text-sky-400 tracking-widest pt-0.5">Teratai Putih</span>
+                </span>
+                <span className="text-[10px] uppercase font-bold text-sky-light/80 tracking-widest mt-0">Portal Warga</span>
               </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed max-w-xs">

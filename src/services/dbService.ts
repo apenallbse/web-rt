@@ -13,12 +13,12 @@ const INITIAL_NOTIFICATION_SETTINGS: NotificationSettings = {
 const INITIAL_RT_PROFILE: RTProfile = {
   no_rt: '003',
   nama_ketua: 'H. Sudirman, S.H.',
-  alamat: 'Jl. Melati Blok C No. 12, RT 003 / RW 015, Kelurahan Harapan Baru, Kecamatan Bekasi Timur, Kota Bekasi, Jawa Barat, 17112, Indonesia',
+  alamat: 'Jl. Melati Blok C No. 12, RT 006 / RW 015, Perumahan Teratai Putih',
   telepon: '081234567890',
-  email: 'rt003@skyrt.com',
+  email: 'rt006@example.com',
   nama_jalan: 'Jl. Melati Blok C',
   no_rumah: '12',
-  rt: '003',
+  rt: '006',
   rw: '015',
   kelurahan: 'Harapan Baru',
   kecamatan: 'Bekasi Timur',
@@ -26,7 +26,17 @@ const INITIAL_RT_PROFILE: RTProfile = {
   provinsi: 'Jawa Barat',
   kode_pos: '17112',
   negara: 'Indonesia',
-  password: '123'
+  password: '123',
+  nama_aplikasi: 'RT 06 Teratai Putih',
+  warna_utama: 'Sky Blue (#0ea5e9)',
+  bahasa: 'Bahasa Indonesia',
+  zona_waktu: 'WIB (Jakarta) GMT+7',
+  tentang_gambar: 'https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=1200',
+  tentang_teks: 'RT 06 digital lahir dari keresahan pengurus RT terhadap sistem administrasi yang masih manual dan sulit dipantau. Kami menghadirkan platform yang mempermudah transparansi keuangan dan pendataan warga secara efisien.',
+  tentang_judul: 'Solusi Digital \nUntuk Masa Depan.',
+  tentang_visi: 'Digitalisasi RT di seluruh Indonesia',
+  tentang_misi: 'Memberdayakan pengurus dengan alat modern',
+  tentang_nilai: 'Aman, Terpercaya, dan Transparan'
 };
 
 // Mock Initial Data

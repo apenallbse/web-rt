@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X, Shield, ArrowRight, ChevronDown, Users, CreditCard, FileText, Clock, Zap, ClipboardList } from 'lucide-react';
 
+import AppLogo from './AppLogo';
+
 const Navbar = () => {
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -44,12 +46,14 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-11 h-11 sky-gradient rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-            <Shield className="text-white" size={24} />
+          <div className="w-11 h-11 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform rounded-full">
+            <AppLogo size={44} />
           </div>
           <div className="flex flex-col">
-            <span className="text-xl font-black text-sky-dark leading-tight tracking-tight">SkyRT</span>
-            <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest -mt-0.5">Management System</span>
+            <span className="text-xl font-black text-sky-dark leading-tight tracking-tight mt-1 flex items-center gap-1.5">
+              RT 06 <span className="text-[12px] uppercase font-bold text-sky-500 tracking-widest leading-none pt-0.5">Teratai Putih</span>
+            </span>
+            <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest mt-0">Portal Warga</span>
           </div>
         </Link>
 
@@ -104,21 +108,7 @@ const Navbar = () => {
           ))}
         </div>
 
-        {/* Desktop Actions */}
-        <div className="hidden lg:flex items-center gap-4">
-          <button 
-            onClick={() => navigate('/login')}
-            className="px-6 py-2.5 text-sm font-bold text-sky-main hover:text-sky-dark transition-colors"
-          >
-            Masuk
-          </button>
-          <button 
-            onClick={() => navigate('/login')}
-            className="px-7 py-3 sky-gradient text-white text-sm font-bold rounded-2xl shadow-lg shadow-sky-main/20 hover:scale-[1.02] transition-transform flex items-center gap-2"
-          >
-            Masuk ke Aplikasi <ArrowRight size={16} />
-          </button>
-        </div>
+        {/* Desktop Actions - Removed as requested */}
 
         {/* Mobile Toggle */}
         <button 
@@ -181,21 +171,7 @@ const Navbar = () => {
                   )}
                 </div>
               ))}
-              <hr className="border-gray-100" />
-              <div className="flex flex-col gap-4">
-                <button 
-                  onClick={() => navigate('/login')}
-                  className="w-full py-4 text-center font-bold text-sky-main border-2 border-sky-main rounded-2xl"
-                >
-                  Masuk
-                </button>
-                <button 
-                  onClick={() => navigate('/login')}
-                  className="w-full py-4 sky-gradient text-white font-bold rounded-2xl shadow-xl shadow-sky-main/20"
-                >
-                  Masuk ke Aplikasi
-                </button>
-              </div>
+              {/* Mobile Actions - Removed as requested */}
             </div>
           </motion.div>
         )}

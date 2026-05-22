@@ -50,6 +50,8 @@ export interface Warga {
   updated_at?: string;
   avatar_url?: string;
   password?: string;
+  two_factor_secret?: string;
+  two_factor_enabled?: boolean;
 }
 
 export interface KartuKeluarga {
@@ -97,6 +99,18 @@ export interface RTProfile {
   negara?: string;
   password?: string;
   avatar_url?: string;
+  nama_aplikasi?: string;
+  warna_utama?: string;
+  bahasa?: string;
+  zona_waktu?: string;
+  tentang_gambar?: string;
+  tentang_teks?: string;
+  tentang_judul?: string;
+  tentang_visi?: string;
+  tentang_misi?: string;
+  tentang_nilai?: string;
+  two_factor_secret?: string;
+  two_factor_enabled?: boolean;
 }
 
 export interface Agenda {

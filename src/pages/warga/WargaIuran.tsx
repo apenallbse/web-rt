@@ -118,17 +118,9 @@ const WargaIuran = () => {
 
   return (
     <div className="space-y-8">
-      <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-sm flex justify-between items-center bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
-        <div>
-          <h2 className="text-3xl font-black text-sky-dark mb-2">Riwayat Iuran</h2>
-          <p className="text-gray-500 font-medium">Pantau status pembayaran bulanan Anda</p>
-        </div>
-        <div className="hidden md:block">
-           <div className="bg-sky-soft p-6 rounded-[2rem] border border-sky-main/10">
-              <span className="text-[10px] font-black text-sky-main uppercase tracking-widest block mb-1">Total Terbayar ({new Date().getFullYear()})</span>
-              <span className="text-2xl font-black text-sky-dark italic">Rp {(userIurans.filter(i => i.status === 'lunas' && i.bulan.startsWith(new Date().getFullYear().toString())).length * 50000).toLocaleString()}</span>
-           </div>
-        </div>
+      <div className="mb-8">
+        <h2 className="text-3xl font-black text-sky-dark mb-2">Riwayat Iuran</h2>
+        <p className="text-gray-500 font-medium">Pantau status pembayaran bulanan Anda</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

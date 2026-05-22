@@ -1,16 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Settings, Users, Shield, Bell, Lock, Globe, Save, FileText, TrendingUp, Eye, EyeOff } from 'lucide-react';
+import { Settings, Users, Shield, Bell, Lock, Globe, Save, FileText, TrendingUp, Eye, EyeOff, Upload, Image } from 'lucide-react';
 import Swal from 'sweetalert2';
 import WargaList from './WargaList';
 import { dbService } from '../../services/dbService';
-import { NotificationSettings } from '../../types';
+import { NotificationSettings, RTProfile } from '../../types';
+import * as OTPAuth from 'otpauth';
+import { QRCodeSVG } from 'qrcode.react';
 
 const SettingsAdmin = () => {
   const [activeTab, setActiveTab] = React.useState('general');
   const [passwords, setPasswords] = useState({
     current: '',
     new: ''
+  });
+  const [profile, setProfile] = useState<RTProfile>({
+    no_rt: '',
+    nama_ketua: '',
+    alamat: '',
+    telepon: '',
+    email: ''
   });
   const [notifSettings, setNotifSettings] = useState<NotificationSettings>({
     reports: true,
@@ -19,12 +28,47 @@ const SettingsAdmin = () => {
     announcements: true,
     twoFactorEnabled: false
   });
+  const [setup2FA, setSetup2FA] = useState({
+    active: false,
+    secretRef: '',
+    uri: '',
+    code: ''
+  });
 
   useEffect(() => {
     setNotifSettings(dbService.getSettings());
+    setProfile(dbService.getRTProfile());
   }, []);
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!validTypes.includes(file.type)) {
+      Swal.fire('Format Tidak Didukung', 'Gunakan JPG, PNG, WEBP, atau GIF.', 'error');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      Swal.fire('File Terlalu Besar', 'Maksimal ukuran file adalah 5MB.', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setProfile(prev => ({ ...prev, tentang_gambar: base64String }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSave = (title: string, message: string) => {
+    if (activeTab === 'general') {
+      dbService.saveRTProfile(profile);
+      window.dispatchEvent(new Event('profile_updated'));
+    }
+
     // If saving notifications OR security (for 2FA), persist to dbService
     if (activeTab === 'notifications') {
       dbService.saveSettings(notifSettings);
@@ -62,11 +106,19 @@ const SettingsAdmin = () => {
         // Update password in RT Profile
         dbService.saveRTProfile({
           ...rtProfile,
-          password: passwords.new
+          password: passwords.new,
+          two_factor_enabled: profile.two_factor_enabled,
+          two_factor_secret: profile.two_factor_secret
         });
         
         // Reset fields
         setPasswords({ current: '', new: '' });
+      } else {
+        dbService.saveRTProfile({
+          ...rtProfile,
+          two_factor_enabled: profile.two_factor_enabled,
+          two_factor_secret: profile.two_factor_secret
+        });
       }
 
       // Save 2FA and potentially other security settings
@@ -144,27 +196,185 @@ const SettingsAdmin = () => {
                   <SettingItem 
                     label="Nama Aplikasi" 
                     desc="Nama yang muncul di header" 
-                    value="SkyRT Management System" 
+                    value={profile.nama_aplikasi || ''} 
+                    onChange={(val: string) => setProfile({ ...profile, nama_aplikasi: val })}
                   />
                   <SettingItem 
                     label="Warna Utama" 
                     desc="Tema branding portal" 
-                    value="Sky Blue (#0ea5e9)" 
+                    value={profile.warna_utama || ''} 
+                    onChange={(val: string) => setProfile({ ...profile, warna_utama: val })}
                   />
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Bahasa Sistem</label>
-                    <select className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent focus:border-sky-main rounded-2xl outline-none font-bold text-slate-700">
-                      <option>Bahasa Indonesia</option>
-                      <option>English</option>
+                    <select 
+                      value={profile.bahasa || 'Bahasa Indonesia'}
+                      onChange={(e) => setProfile({ ...profile, bahasa: e.target.value })}
+                      className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent focus:border-sky-main rounded-2xl outline-none font-bold text-slate-700"
+                    >
+                      <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                      <option value="English">English</option>
                     </select>
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Zona Waktu</label>
-                    <select className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent focus:border-sky-main rounded-2xl outline-none font-bold text-slate-700">
-                      <option>WIB (Jakarta) GMT+7</option>
-                      <option>WITA GMT+8</option>
-                      <option>WIT GMT+9</option>
+                    <select 
+                      value={profile.zona_waktu || 'WIB (Jakarta) GMT+7'}
+                      onChange={(e) => setProfile({ ...profile, zona_waktu: e.target.value })}
+                      className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent focus:border-sky-main rounded-2xl outline-none font-bold text-slate-700"
+                    >
+                      <option value="WIB (Jakarta) GMT+7">WIB (Jakarta) GMT+7</option>
+                      <option value="WITA GMT+8">WITA GMT+8</option>
+                      <option value="WIT GMT+9">WIT GMT+9</option>
                     </select>
+                  </div>
+               </div>
+
+               <div className="pt-8 border-t border-slate-100 space-y-6">
+                  <div className="space-y-1">
+                     <h4 className="text-sm font-black text-slate-800 uppercase tracking-widest text-sky-dark">Kustomisasi Halaman Pembuka (Tentang Kami)</h4>
+                     <p className="text-xs text-slate-400 font-medium">Atur foto dan deskripsi teks penjelasan di halaman depan secara dinamis</p>
+                  </div>
+
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Foto Tentang Halaman Pembuka</label>
+                          
+                          <div 
+                            onClick={() => document.getElementById('about_image_file_input')?.click()}
+                            className="border-2 border-dashed border-slate-200 hover:border-sky-500 rounded-3xl p-6 transition-all bg-slate-50 hover:bg-slate-100/50 flex flex-col items-center justify-center text-center cursor-pointer group relative overflow-hidden min-h-[180px]"
+                          >
+                            <input 
+                              type="file" 
+                              id="about_image_file_input" 
+                              className="hidden" 
+                              accept="image/*" 
+                              onChange={handleImageUpload} 
+                            />
+                            
+                            {profile.tentang_gambar ? (
+                              <div className="absolute inset-0 w-full h-full">
+                                <img 
+                                  src={profile.tentang_gambar} 
+                                  alt="Pratinjau Tentang" 
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                  onError={(e: any) => {
+                                    e.target.src = "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=1200";
+                                  }}
+                                />
+                                <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white gap-2 p-4">
+                                  <Upload size={24} className="animate-bounce" />
+                                  <span className="text-xs font-black uppercase tracking-widest">Ganti Foto</span>
+                                  <span className="text-[10px] text-slate-300 font-medium">Klik untuk memilih file baru</span>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="py-4 flex flex-col items-center">
+                                <div className="w-12 h-12 bg-sky-50 text-sky-600 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                  <Upload size={20} />
+                                </div>
+                                <span className="text-xs font-black text-slate-700 uppercase tracking-wider block">Unggah Foto Tentang Kami</span>
+                                <span className="text-[10px] text-slate-400 mt-1 block">Klik untuk memilih file JPG, PNG, atau WEBP</span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex items-center justify-between gap-4 mt-2">
+                            <span className="text-[10px] text-slate-400 font-medium italic">
+                              *Direkomendasikan foto lanskap 4:3 / 16:9 (Maks 5MB)
+                            </span>
+                            {profile.tentang_gambar && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setProfile({ ...profile, tentang_gambar: '' });
+                                }}
+                                className="text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-600 bg-rose-50 px-3 py-1.5 rounded-lg active:scale-95 transition-all cursor-pointer"
+                              >
+                                Hapus Foto
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="pt-2">
+                          <details className="cursor-pointer group">
+                            <summary className="text-[10px] font-black uppercase tracking-widest text-slate-400 select-none hover:text-slate-600 transition-colors flex items-center gap-1">
+                              <span>Atur menggunakan URL Gambar (Klik untuk memperluas)</span>
+                            </summary>
+                            <div className="mt-3 pl-1">
+                              <SettingItem 
+                                label="Atau gunakan URL Link Gambar" 
+                                desc="Salin tautan luar jika Anda tidak ingin mengunggah file lokal" 
+                                value={profile.tentang_gambar || ''} 
+                                onChange={(val: string) => setProfile({ ...profile, tentang_gambar: val })}
+                              />
+                            </div>
+                          </details>
+                        </div>
+                      </div>
+
+                     <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Teks Deskripsi Tentang</label>
+                        <textarea 
+                           rows={6}
+                           value={profile.tentang_teks || ''}
+                           onChange={(e) => setProfile({ ...profile, tentang_teks: e.target.value })}
+                           className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent focus:border-sky-main rounded-2xl outline-none font-bold text-slate-700 font-sans text-sm leading-relaxed"
+                           placeholder="Tulis deskripsi atau sejarah rincian mengenai RT Anda..."
+                        />
+                        <p className="text-[10px] text-slate-400 font-medium italic">Paragraf ini akan langsung memperbarui teks di halaman pembuka.</p>
+                     </div>
+                  </div>
+
+                  {/* Additional customizable fields for Tentang section */}
+                  <div className="pt-6 border-t border-slate-100/80 grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Judul Besar Tentang Kami</label>
+                        <input 
+                           type="text"
+                           value={profile.tentang_judul || ''}
+                           onChange={(e) => setProfile({ ...profile, tentang_judul: e.target.value })}
+                           className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent focus:border-sky-main rounded-2xl outline-none font-bold text-slate-700 font-sans text-sm"
+                           placeholder="Misal: Solusi Digital \nUntuk Masa Depan."
+                        />
+                        <p className="text-[10px] text-slate-400 font-medium italic">Gunakan \n untuk membuat baris baru pada judul.</p>
+                     </div>
+
+                     <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Visi Utama RT</label>
+                        <input 
+                           type="text"
+                           value={profile.tentang_visi || ''}
+                           onChange={(e) => setProfile({ ...profile, tentang_visi: e.target.value })}
+                           className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent focus:border-sky-main rounded-2xl outline-none font-bold text-slate-700 font-sans text-sm"
+                           placeholder="Misal: Digitalisasi RT di seluruh Indonesia"
+                        />
+                     </div>
+
+                     <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Misi Utama RT</label>
+                        <input 
+                           type="text"
+                           value={profile.tentang_misi || ''}
+                           onChange={(e) => setProfile({ ...profile, tentang_misi: e.target.value })}
+                           className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent focus:border-sky-main rounded-2xl outline-none font-bold text-slate-700 font-sans text-sm"
+                           placeholder="Misal: Memberdayakan pengurus dengan alat modern"
+                        />
+                     </div>
+
+                     <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nilai-Nilai RT</label>
+                        <input 
+                           type="text"
+                           value={profile.tentang_nilai || ''}
+                           onChange={(e) => setProfile({ ...profile, tentang_nilai: e.target.value })}
+                           className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent focus:border-sky-main rounded-2xl outline-none font-bold text-slate-700 font-sans text-sm"
+                           placeholder="Misal: Aman, Terpercaya, dan Transparan"
+                        />
+                     </div>
                   </div>
                </div>
 
@@ -213,11 +423,67 @@ const SettingsAdmin = () => {
                         </div>
                      </div>
                      <Toggle 
-                        checked={notifSettings.twoFactorEnabled} 
-                        onChange={(val: boolean) => setNotifSettings({...notifSettings, twoFactorEnabled: val})} 
+                        checked={profile.two_factor_enabled || false} 
+                        onChange={(val: boolean) => {
+                          if (val) {
+                            const secret = new OTPAuth.Secret({ size: 20 });
+                            const totp = new OTPAuth.TOTP({
+                              issuer: "SkyRT",
+                              label: profile.email || "admin@skyrt.id",
+                              algorithm: "SHA1",
+                              digits: 6,
+                              period: 30,
+                              secret: secret
+                            });
+                            setSetup2FA({ ...setup2FA, active: true, secretRef: secret.base32, uri: totp.toString() });
+                          } else {
+                            setProfile({ ...profile, two_factor_enabled: false, two_factor_secret: undefined });
+                            setSetup2FA({ active: false, secretRef: '', uri: '', code: '' });
+                          }
+                        }} 
                      />
                   </div>
                </div>
+
+               {setup2FA.active && !profile.two_factor_enabled && (
+                 <div className="p-6 mt-4 border border-sky-200 bg-sky-50 rounded-2xl flex flex-col items-center gap-4">
+                   <p className="text-sm font-bold text-sky-dark text-center">Scan QR Code dengan Google Authenticator</p>
+                   <div className="p-4 bg-white rounded-xl shadow-sm">
+                     <QRCodeSVG value={setup2FA.uri} size={150} />
+                   </div>
+                   <input 
+                     type="text" 
+                     className="px-4 py-2 text-center text-xl tracking-widest font-mono bg-white border border-sky-200 rounded-lg outline-none"
+                     placeholder="000000"
+                     maxLength={6}
+                     value={setup2FA.code}
+                     onChange={(e) => setSetup2FA({ ...setup2FA, code: e.target.value.replace(/\D/g, '') })}
+                   />
+                   <button 
+                     onClick={() => {
+                        let totp = new OTPAuth.TOTP({
+                          issuer: "SkyRT",
+                          label: profile.email || "admin@skyrt.id",
+                          algorithm: "SHA1",
+                          digits: 6,
+                          period: 30,
+                          secret: OTPAuth.Secret.fromBase32(setup2FA.secretRef)
+                        });
+                        const delta = totp.validate({ token: setup2FA.code, window: 1 });
+                        if (delta !== null) {
+                          setProfile({ ...profile, two_factor_enabled: true, two_factor_secret: setup2FA.secretRef });
+                          setSetup2FA({ ...setup2FA, active: false });
+                          Swal.fire('Berhasil', '2FA telah diaktifkan. Ingat untuk menyimpan pengaturan!', 'success');
+                        } else {
+                          Swal.fire('Kode Salah', 'Kode Autentikator Google tidak valid.', 'error');
+                        }
+                     }}
+                     className="px-6 py-2 bg-sky-main text-white font-bold rounded-lg hover:bg-sky-600 transition-colors"
+                   >
+                     Verifikasi & Aktifkan
+                   </button>
+                 </div>
+               )}
 
                <div className="pt-8 border-t border-slate-50">
                   <button 
@@ -302,12 +568,13 @@ const TabButton = ({ active, onClick, icon, label, sub }: any) => (
   </button>
 );
 
-const SettingItem = ({ label, desc, value }: any) => (
+const SettingItem = ({ label, desc, value, onChange }: any) => (
   <div className="space-y-2">
     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">{label}</label>
     <input 
       type="text" 
-      defaultValue={value}
+      value={value}
+      onChange={(e) => onChange && onChange(e.target.value)}
       className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent focus:border-sky-main rounded-2xl outline-none font-bold text-slate-700" 
     />
     <p className="text-[10px] text-slate-400 font-medium italic">{desc}</p>

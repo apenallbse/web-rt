@@ -77,7 +77,7 @@ const RegisterPage = () => {
           </div>
           
           <h2 className="text-3xl font-extrabold text-center text-sky-dark mb-2">Daftar Akun Baru</h2>
-          <p className="text-center text-gray-500 mb-10">Bergabunglah dengan komunitas SkyRT</p>
+          <p className="text-center text-gray-500 mb-10">Bergabunglah dengan komunitas warga RT 06</p>
           
           <form onSubmit={handleFormSubmit} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

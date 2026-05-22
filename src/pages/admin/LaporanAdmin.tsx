@@ -25,14 +25,7 @@ const LaporanAdmin = () => {
     saldoKas: 0
   });
   const [isLoading, setIsLoading] = useState(true);
-
-  const dataIuran = [
-    { name: 'Jan', total: 4500000 },
-    { name: 'Feb', total: 5200000 },
-    { name: 'Mar', total: 4800000 },
-    { name: 'Apr', total: 6100000 },
-    { name: 'Mei', total: 5400000 },
-  ];
+  const [dataIuran, setDataIuran] = useState<any[]>([]);
 
   useEffect(() => {
     const loadData = () => {
@@ -47,15 +40,67 @@ const LaporanAdmin = () => {
         .filter(t => t.type === 'Keluar')
         .reduce((sum, t) => sum + t.amount, 0);
 
-      // Match KeuanganAdmin logic: Base 14.25M minus initial transaction set
-      const initialTransactionsNet = 1250000 - 210000 + 500000 - 85000;
-      const saldo = 14250000 + totalMasuk - totalKeluar - initialTransactionsNet;
+      const saldo = totalMasuk - totalKeluar;
 
       setStats({
         totalWarga: warga.length,
         totalKK: kk.length,
         saldoKas: saldo
       });
+
+      // Calculate trend pemasukan from transactions starting from Mei 2026 onwards
+      const monthsList = [
+        { name: 'Mei', key: 'mei' },
+        { name: 'Juni', key: 'juni' },
+        { name: 'Juli', key: 'juli' },
+        { name: 'Agustus', key: 'agustus' },
+        { name: 'September', key: 'september' },
+        { name: 'Oktober', key: 'oktober' },
+        { name: 'November', key: 'november' },
+        { name: 'Desember', key: 'desember' },
+      ];
+
+      const getMonthKey = (dateStr: string) => {
+        if (!dateStr) return '';
+        const dNode = dateStr.toLowerCase();
+        if (dNode.includes('mei') || dNode.includes('may')) return 'mei';
+        if (dNode.includes('juni') || dNode.includes('june') || dNode.includes('jun')) return 'juni';
+        if (dNode.includes('juli') || dNode.includes('july') || dNode.includes('jul')) return 'juli';
+        if (dNode.includes('agustus') || dNode.includes('august') || dNode.includes('agt') || dNode.includes('aug')) return 'agustus';
+        if (dNode.includes('september') || dNode.includes('sep')) return 'september';
+        if (dNode.includes('oktober') || dNode.includes('october') || dNode.includes('okt') || dNode.includes('oct')) return 'oktober';
+        if (dNode.includes('november') || dNode.includes('nov')) return 'november';
+        if (dNode.includes('desember') || dNode.includes('december') || dNode.includes('des') || dNode.includes('dec')) return 'desember';
+        return '';
+      };
+
+      // Sum up Masuk amounts by month key
+      const monthlyTotals: { [key: string]: number } = {
+        mei: 0,
+        juni: 0,
+        juli: 0,
+        agustus: 0,
+        september: 0,
+        oktober: 0,
+        november: 0,
+        desember: 0,
+      };
+
+      transactions.forEach(t => {
+        if (t.type === 'Masuk') {
+          const key = getMonthKey(t.date);
+          if (key && monthlyTotals[key] !== undefined) {
+            monthlyTotals[key] += t.amount;
+          }
+        }
+      });
+
+      const calculatedData = monthsList.map(m => ({
+        name: m.name,
+        total: monthlyTotals[m.key]
+      }));
+
+      setDataIuran(calculatedData);
       setIsLoading(false);
     };
     loadData();
