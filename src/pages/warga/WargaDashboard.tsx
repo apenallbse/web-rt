@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { dbService } from '../../services/dbService';
@@ -8,19 +8,42 @@ import { motion } from 'motion/react';
 const WargaDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const iurans = dbService.getIuran().filter(i => i.warga_id === user?.wargaId);
-  const surats = dbService.getSurat().filter(s => s.warga_id === user?.wargaId);
+  
+  const [iurans, setIurans] = useState(() => dbService.getIuran().filter(i => i.warga_id === user?.wargaId));
+  const [surats, setSurats] = useState(() => dbService.getSurat().filter(s => s.warga_id === user?.wargaId));
+
+  useEffect(() => {
+    const handleDataChange = () => {
+      setIurans(dbService.getIuran().filter(i => i.warga_id === user?.wargaId));
+      setSurats(dbService.getSurat().filter(s => s.warga_id === user?.wargaId));
+    };
+
+    window.addEventListener('storage', handleDataChange);
+    window.addEventListener('focus', handleDataChange);
+    return () => {
+      window.removeEventListener('storage', handleDataChange);
+      window.removeEventListener('focus', handleDataChange);
+    };
+  }, [user]);
+
   const currentMonth = new Date().toISOString().slice(0, 7);
   const currentMonthIuran = iurans.find(i => i.bulan === currentMonth);
   const monthName = new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
 
+  const allSystemIurans = dbService.getIuran();
+  const defaultNominal = iurans.length > 0 
+    ? [...iurans].sort((a, b) => b.bulan.localeCompare(a.bulan))[0].jumlah 
+    : allSystemIurans.length > 0 
+      ? [...allSystemIurans].sort((a, b) => b.bulan.localeCompare(a.bulan))[0].jumlah 
+      : 50000;
+
   return (
     <div className="space-y-8">
-      <div className="bg-white p-10 rounded-[3rem] border border-gray-100 shadow-sm relative overflow-hidden">
+      <div className="bg-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] border border-gray-100 shadow-sm relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 sky-gradient rounded-full blur-[80px] opacity-10 translate-x-1/2 -translate-y-1/2"></div>
         <div className="relative">
-          <h1 className="text-4xl font-black text-sky-dark mb-4">Halo, Selamat Datang!</h1>
-          <p className="text-gray-500 font-medium text-lg max-w-xl leading-relaxed">
+          <h1 className="text-2xl sm:text-4xl font-black text-sky-dark mb-2 sm:mb-4">Halo, Selamat Datang!</h1>
+          <p className="text-gray-500 font-medium text-sm sm:text-lg max-w-xl leading-relaxed">
             Ini adalah portal layanan mandiri SkyRT Anda. Pantau status iuran dan kelola pengajuan surat dengan mudah.
           </p>
         </div>
@@ -31,24 +54,29 @@ const WargaDashboard = () => {
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm"
+          className="bg-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-gray-100 shadow-sm"
         >
-          <div className="flex justify-between items-start mb-8">
-             <div className="p-4 bg-sky-soft text-sky-main rounded-2xl"><CreditCard size={28} /></div>
-             <span className={`px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest ${
-               currentMonthIuran?.status === 'lunas' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'
+          <div className="flex justify-between items-start mb-6 sm:mb-8">
+             <div className="p-3 sm:p-4 bg-sky-soft text-sky-main rounded-2xl"><CreditCard size={24} className="sm:w-7 sm:h-7" /></div>
+             <span className={`px-4 py-2 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest ${
+               currentMonthIuran?.status === 'lunas' ? 'bg-emerald-100 text-emerald-600' : 
+               currentMonthIuran?.status === 'pending' ? 'bg-blue-100 text-blue-600' : 'bg-amber-100 text-amber-600'
              }`}>
-               Bulan Ini: {currentMonthIuran?.status === 'lunas' ? 'Lunas' : 'Belum Bayar'}
+               Bulan Ini: {currentMonthIuran?.status === 'lunas' ? 'Lunas' : currentMonthIuran?.status === 'pending' ? 'Menunggu Konfirmasi' : 'Belum Bayar'}
              </span>
           </div>
-          <h3 className="text-2xl font-black text-sky-dark mb-2">Status Iuran Bulanan</h3>
-          <p className="text-gray-500 font-medium mb-8">Iuran kebersihan & keamanan lingkungan ({monthName})</p>
+          <h3 className="text-xl sm:text-2xl font-black text-sky-dark mb-2">Status Iuran Bulanan</h3>
+          <p className="text-gray-500 font-medium text-sm sm:text-base mb-6 sm:mb-8">Iuran kebersihan & keamanan lingkungan ({monthName})</p>
           
-          <div className="p-6 bg-slate-50 rounded-3xl flex items-center justify-between">
-             <span className="text-2xl font-black text-sky-dark leading-none">Rp 50.000</span>
+          <div className="p-4 sm:p-6 bg-slate-50 rounded-2xl sm:rounded-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+             <span className="text-xl sm:text-2xl font-black text-sky-dark leading-none">Rp {currentMonthIuran?.jumlah ? currentMonthIuran.jumlah.toLocaleString('id-ID') : defaultNominal.toLocaleString('id-ID')}</span>
              {currentMonthIuran?.status === 'lunas' ? (
                 <div className="flex items-center gap-2 text-emerald-600 font-bold">
                   <CheckCircle size={20} /> Lunas
+                </div>
+             ) : currentMonthIuran?.status === 'pending' ? (
+                <div className="flex items-center gap-2 text-blue-600 font-bold">
+                  <Clock size={20} /> Pending
                 </div>
              ) : (
                 <button 
@@ -66,11 +94,11 @@ const WargaDashboard = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm flex flex-col"
+          className="bg-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-gray-100 shadow-sm flex flex-col"
         >
-          <div className="flex justify-between items-center mb-8">
-            <h3 className="text-2xl font-black text-sky-dark">Status Surat</h3>
-            <div className="p-4 bg-purple-50 text-purple-600 rounded-2xl"><FileText size={28} /></div>
+          <div className="flex justify-between items-center mb-6 sm:mb-8">
+            <h3 className="text-xl sm:text-2xl font-black text-sky-dark">Status Surat</h3>
+            <div className="p-3 sm:p-4 bg-purple-50 text-purple-600 rounded-2xl"><FileText size={24} className="sm:w-7 sm:h-7" /></div>
           </div>
           
           <div className="space-y-4 flex-1">

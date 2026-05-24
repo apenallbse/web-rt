@@ -9,7 +9,16 @@ const KeuanganAdmin = () => {
   const [transactions, setTransactions] = useState<any[]>([]);
 
   useEffect(() => {
-    setTransactions(dbService.getTransactions());
+    const handleDataChange = () => {
+      setTransactions(dbService.getTransactions());
+    };
+    handleDataChange();
+    window.addEventListener('storage', handleDataChange);
+    window.addEventListener('focus', handleDataChange);
+    return () => {
+      window.removeEventListener('storage', handleDataChange);
+      window.removeEventListener('focus', handleDataChange);
+    };
   }, []);
 
   const [showAll, setShowAll] = useState(false);
@@ -271,7 +280,7 @@ const KeuanganAdmin = () => {
             </button>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="w-full min-w-[600px] text-left">
             <thead>
               <tr className="border-b border-slate-50">
                 <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Kategori & Keterangan</th>

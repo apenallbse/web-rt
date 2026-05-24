@@ -455,7 +455,7 @@ const AgendaAdmin = () => {
             </h2>
             
             <div className="overflow-x-auto pb-4">
-              <table className="w-full border-separate border-spacing-y-4">
+              <table className="w-full min-w-[700px] border-separate border-spacing-y-4">
                 <thead>
                   <tr className="text-left">
                     <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Warga</th>

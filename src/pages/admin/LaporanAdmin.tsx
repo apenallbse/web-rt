@@ -136,10 +136,12 @@ const LaporanAdmin = () => {
 
   const exportToPDF = () => {
     try {
+      const rtProfile = dbService.getRTProfile();
+      const nomorRT = rtProfile?.no_rt || '000';
       const doc = new jsPDF();
       
       doc.setFontSize(22);
-      doc.text('LAPORAN BULANAN RT 003', 105, 20, { align: 'center' });
+      doc.text(`LAPORAN BULANAN RT ${nomorRT}`, 105, 20, { align: 'center' });
       
       doc.setFontSize(12);
       doc.text(`Dicetak pada: ${new Date().toLocaleString()}`, 105, 30, { align: 'center' });
@@ -160,18 +162,22 @@ const LaporanAdmin = () => {
       // Financial Data Section
       const finalY = (doc as any).lastAutoTable.finalY;
       doc.setFontSize(16);
-      doc.text('Data Pemasukan Iuran 2026', 14, finalY + 15);
+      doc.text(`Data Pemasukan Iuran ${new Date().getFullYear()}`, 14, finalY + 15);
       
       const iuranRows = dataIuran.map(d => [d.name, `Rp ${d.total.toLocaleString()}`]);
+      const totalPemasukan = dataIuran.reduce((sum, d) => sum + d.total, 0);
+
       autoTable(doc, {
         startY: finalY + 20,
         head: [['Bulan', 'Total Pemasukan']],
         body: iuranRows,
+        foot: [['Total Keseluruhan', `Rp ${totalPemasukan.toLocaleString()}`]],
         theme: 'grid',
-        headStyles: { fillColor: [16, 185, 129] as any }
+        headStyles: { fillColor: [16, 185, 129] as any },
+        footStyles: { fillColor: [241, 245, 249] as any, textColor: [15, 23, 42] as any, fontStyle: 'bold' }
       });
 
-      doc.save('Laporan_RT003_2026.pdf');
+      doc.save(`Laporan_RT${nomorRT}_${new Date().getFullYear()}.pdf`);
       
       Swal.fire({
         icon: 'success',
@@ -188,6 +194,8 @@ const LaporanAdmin = () => {
 
   const exportToExcel = () => {
     try {
+      const rtProfile = dbService.getRTProfile();
+      const nomorRT = rtProfile?.no_rt || '000';
       const workbook = XLSX.utils.book_new();
       
       // Iuran Sheet
@@ -205,7 +213,7 @@ const LaporanAdmin = () => {
       })));
       XLSX.utils.book_append_sheet(workbook, statsWS, "Statistik");
 
-      XLSX.writeFile(workbook, "Laporan_RT003_2026.xlsx");
+      XLSX.writeFile(workbook, `Laporan_RT${nomorRT}_${new Date().getFullYear()}.xlsx`);
       
       Swal.fire({
         icon: 'success',

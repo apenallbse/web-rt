@@ -66,7 +66,7 @@ export interface Iuran {
   warga_id: string;
   bulan: string; // YYYY-MM
   jumlah: number;
-  status: 'lunas' | 'belum';
+  status: 'lunas' | 'belum' | 'pending';
   tanggal_bayar?: string;
 }
 

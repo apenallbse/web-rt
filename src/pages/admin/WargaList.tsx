@@ -243,7 +243,7 @@ const WargaList = () => {
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full min-w-[800px] text-left border-collapse">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
                 <th className="px-6 py-3 text-[11px] uppercase tracking-wider font-bold text-slate-500">Nama Warga</th>

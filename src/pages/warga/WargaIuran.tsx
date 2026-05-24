@@ -1,37 +1,49 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { dbService } from '../../services/dbService';
-import { CreditCard, CheckCircle, Clock, Calendar, Wallet, X } from 'lucide-react';
+import { CreditCard, CheckCircle, Clock, Calendar, Wallet, X, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
 
 const WargaIuran = () => {
   const { user } = useAuth();
-  const [iurans, setIurans] = useState(dbService.getIuran());
+  const [iurans, setIurans] = useState(() => dbService.getIuran());
+  
+  React.useEffect(() => {
+    const handleStorageChange = () => {
+      setIurans(dbService.getIuran());
+    };
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('focus', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', handleStorageChange);
+    };
+  }, []);
+
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedBulan, setSelectedBulan] = useState('');
-  const [selectedMethod, setSelectedMethod] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   
   const userIurans = iurans.filter(i => i.warga_id === user?.wargaId);
-
-  const paymentMethods = [
-    { id: 'ovo', name: 'OVO', color: 'purple', icon: 'https://upload.wikimedia.org/wikipedia/commons/e/eb/Logo_ovo_spirit_darah_biru.png' },
-    { id: 'gopay', name: 'GoPay', color: 'emerald', icon: 'https://upload.wikimedia.org/wikipedia/commons/8/86/Gopay_logo.svg' },
-    { id: 'dana', name: 'DANA', color: 'blue', icon: 'https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_danamon_2017.svg' },
-    { id: 'shopeepay', name: 'ShopeePay', color: 'orange', icon: 'https://upload.wikimedia.org/wikipedia/commons/f/fe/Shopee.svg' }
-  ];
+  
+  const defaultNominal = userIurans.length > 0 
+    ? [...userIurans].sort((a, b) => b.bulan.localeCompare(a.bulan))[0].jumlah 
+    : iurans.length > 0 
+      ? [...iurans].sort((a, b) => b.bulan.localeCompare(a.bulan))[0].jumlah 
+      : 50000;
 
   const handlePayRequest = (bulan: string) => {
     setSelectedBulan(bulan);
-    setSelectedMethod('');
+    setSelectedFile(null);
     setShowPaymentModal(true);
   };
 
   const confirmPayment = () => {
-    if (!selectedMethod) {
+    if (!selectedFile) {
       Swal.fire({
-        title: 'Pilih Metode!',
-        text: 'Silakan pilih metode pembayaran terlebih dahulu.',
+        title: 'Upload Bukti!',
+        text: 'Silakan upload bukti pembayaran terlebih dahulu.',
         icon: 'warning',
         confirmButtonColor: '#1d4ed8',
         customClass: { popup: 'rounded-[3rem]' }
@@ -60,7 +72,7 @@ const WargaIuran = () => {
         updated = [...currentAll];
         updated[existingIndex] = {
           ...updated[existingIndex],
-          status: 'lunas',
+          status: 'pending',
           tanggal_bayar: new Date().toISOString().split('T')[0]
         };
       } else {
@@ -68,8 +80,8 @@ const WargaIuran = () => {
           id: `i-${Date.now()}`,
           warga_id: user?.wargaId || '',
           bulan: selectedBulan,
-          jumlah: 50000,
-          status: 'lunas',
+          jumlah: defaultNominal,
+          status: 'pending' as any,
           tanggal_bayar: new Date().toISOString().split('T')[0]
         };
         updated = [...currentAll, newPayment];
@@ -80,7 +92,7 @@ const WargaIuran = () => {
 
       Swal.fire({
         title: 'Berhasil!',
-        text: `Iuran bulan ${new Date(selectedBulan).toLocaleDateString('id-ID', { month: 'long' })} telah berhasil dibayar menggunakan ${paymentMethods.find(m => m.id === selectedMethod)?.name}.`,
+        text: `Bukti transfer iuran bulan ${new Date(selectedBulan).toLocaleDateString('id-ID', { month: 'long' })} telah berhasil diunggah.`,
         icon: 'success',
         confirmButtonText: 'MANTAP',
         confirmButtonColor: '#10b981',
@@ -150,7 +162,9 @@ const WargaIuran = () => {
               </div>
               
               <h4 className="text-xl font-black text-sky-dark mb-1">{new Date(bulan).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</h4>
-              <p className="text-2xl font-black text-gray-900 mb-6 underline decoration-sky-main/20">Rp 50.000</p>
+              <p className="text-2xl font-black text-gray-900 mb-6 underline decoration-sky-main/20">
+                Rp {item?.jumlah ? item.jumlah.toLocaleString('id-ID') : defaultNominal.toLocaleString('id-ID')}
+              </p>
               
               {item?.status === 'lunas' ? (
                 <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
@@ -170,7 +184,10 @@ const WargaIuran = () => {
       </div>
 
       <AnimatePresence>
-        {showPaymentModal && (
+        {showPaymentModal && (() => {
+          const selectedItem = userIurans.find(ir => ir.bulan === selectedBulan);
+          const nominal = selectedItem?.jumlah ?? defaultNominal;
+          return (
           <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }}
@@ -200,43 +217,48 @@ const WargaIuran = () => {
                 </div>
 
                 <div className="space-y-6">
-                  <div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Pilih Metode Pembayaran</p>
-                    <div className="grid grid-cols-2 gap-4">
-                      {paymentMethods.map(m => (
-                        <button
-                          key={m.id}
-                          onClick={() => setSelectedMethod(m.id)}
-                          className={`p-4 rounded-3xl border-2 transition-all flex flex-col items-center gap-2 group cursor-pointer ${
-                            selectedMethod === m.id 
-                              ? 'bg-sky-50 border-sky-main shadow-md ring-4 ring-sky-100' 
-                              : 'bg-gray-50 border-transparent hover:border-gray-200'
-                          }`}
-                        >
-                          <div className={`h-10 flex items-center justify-center transition-all ${selectedMethod === m.id ? 'grayscale-0' : 'grayscale group-hover:grayscale-0'}`}>
-                            <img src={m.icon} className="h-6 object-contain" alt={m.name} />
-                          </div>
-                          <span className={`text-[10px] font-black uppercase tracking-tight ${selectedMethod === m.id ? 'text-sky-main' : 'text-gray-400 group-hover:text-gray-600'}`}>
-                            {m.name}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
                   <div className="p-6 bg-sky-dark rounded-[2rem] text-white shadow-xl shadow-blue-900/20">
                     <p className="text-[10px] font-bold uppercase opacity-60 tracking-widest mb-1">Total Bayar</p>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-black italic">Rp 50.000</span>
+                      <span className="text-3xl font-black italic">Rp {nominal.toLocaleString('id-ID')}</span>
                       <span className="text-[10px] font-bold opacity-40">/ Bulan</span>
                     </div>
                     <div className="mt-4 pt-4 border-t border-white/10">
                       <p className="text-[10px] font-bold uppercase opacity-60 tracking-widest mb-1 text-sky-200">Tujuan Transfer (Admin RT)</p>
                       <p className="font-bold flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                        0812-3456-7890
+                        0812-3456-7890 (BCA / Mandiri)
                       </p>
                     </div>
+                  </div>
+
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Upload Bukti Transfer</p>
+                    <label className={`w-full cursor-pointer flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-3xl transition-all ${selectedFile ? 'border-sky-main bg-sky-50' : 'border-gray-200 hover:bg-gray-50'}`}>
+                      {selectedFile ? (
+                        <>
+                          <CheckCircle className="text-sky-500 mb-2" size={32} />
+                          <p className="text-sm font-bold text-sky-900 text-center">{selectedFile.name}</p>
+                          <p className="text-[10px] text-sky-500 mt-1 uppercase font-bold tracking-widest">Klik untuk mengganti</p>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="text-gray-400 mb-2" size={32} />
+                          <p className="text-sm font-bold text-gray-600 text-center">Pilih file bukti transfer</p>
+                          <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-widest">JPG, PNG, atau PDF</p>
+                        </>
+                      )}
+                      <input 
+                        type="file" 
+                        accept="image/*,.pdf" 
+                        className="hidden" 
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files.length > 0) {
+                            setSelectedFile(e.target.files[0]);
+                          }
+                        }}
+                      />
+                    </label>
                   </div>
 
                   <div className="flex gap-4 pt-2">
@@ -249,7 +271,7 @@ const WargaIuran = () => {
                     <button 
                       onClick={confirmPayment}
                       className="flex-[2] py-5 sky-gradient text-white font-black rounded-2xl shadow-lg shadow-sky-main/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled={!selectedMethod}
+                      disabled={!selectedFile}
                     >
                       <CreditCard size={20} /> KONFIRMASI BAYAR
                     </button>
@@ -258,7 +280,8 @@ const WargaIuran = () => {
               </div>
             </motion.div>
           </div>
-        )}
+          );
+        })()}
       </AnimatePresence>
     </div>
   );

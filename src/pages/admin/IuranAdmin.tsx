@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { dbService } from '../../services/dbService';
 import { Iuran, Warga } from '../../types';
 import { CreditCard, Filter, CheckCircle, XCircle, Search, Calendar, Edit2, Trash2, Plus } from 'lucide-react';
@@ -6,38 +6,59 @@ import { motion } from 'motion/react';
 import Swal from 'sweetalert2';
 
 const IuranAdmin = () => {
-  const [iurans, setIurans] = useState<Iuran[]>(dbService.getIuran());
-  const [warga] = useState<Warga[]>(dbService.getWarga());
+  const [iurans, setIurans] = useState<Iuran[]>(() => dbService.getIuran());
+  const [warga, setWarga] = useState<Warga[]>(() => dbService.getWarga());
   const [filterMonth, setFilterMonth] = useState(new Date().toISOString().slice(0, 7));
   const [searchTerm, setSearchTerm] = useState('');
   
+  useEffect(() => {
+    const handleDataChange = () => {
+      setIurans(dbService.getIuran());
+      setWarga(dbService.getWarga());
+    };
+    window.addEventListener('storage', handleDataChange);
+    window.addEventListener('focus', handleDataChange);
+    return () => {
+      window.removeEventListener('storage', handleDataChange);
+      window.removeEventListener('focus', handleDataChange);
+    };
+  }, []);
+
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     warga_id: '',
     bulan: filterMonth,
     jumlah: 50000,
-    status: 'lunas' as 'lunas' | 'belum',
+    status: 'lunas' as 'lunas' | 'belum' | 'pending',
     tanggal_bayar: new Date().toISOString().split('T')[0]
   });
 
-  const filteredData = useMemo(() => {
+  const monthData = useMemo(() => {
     return warga.map(w => {
-      const payment = iurans.find(i => i.warga_id === w.id && i.bulan === filterMonth);
-      return { 
-        warga: w, 
-        payment: payment || null 
+      return {
+        warga: w,
+        payment: iurans.find(i => i.warga_id === w.id && i.bulan === filterMonth) || null
       };
-    }).filter(item => 
+    });
+  }, [warga, iurans, filterMonth]);
+  
+  const wargaLunas = monthData.filter(d => d.payment && d.payment.status === 'lunas').length;
+  const belumBayar = Math.max(0, warga.length - wargaLunas);
+  const totalDana = monthData
+    .filter(d => d.payment && d.payment.status === 'lunas')
+    .reduce((a, b) => a + (b.payment?.jumlah || 0), 0);
+
+  const filteredData = useMemo(() => {
+    return monthData.filter(item => 
       item.warga.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.warga.nik.includes(searchTerm)
     ).sort((a, b) => {
-      // Prioritas yang sudah bayar di atas atau bisa juga sorting nama
       if (a.payment && !b.payment) return -1;
       if (!a.payment && b.payment) return 1;
       return a.warga.nama.localeCompare(b.warga.nama);
     });
-  }, [warga, iurans, filterMonth, searchTerm]);
+  }, [monthData, searchTerm]);
 
   const handleOpenModal = (wargaId?: string, payment?: Iuran | null) => {
     if (payment) {
@@ -51,10 +72,22 @@ const IuranAdmin = () => {
       });
     } else {
       setEditId(null);
+      let defNom = 50000;
+      if (wargaId) {
+        const wIurans = iurans.filter(i => i.warga_id === wargaId);
+        if (wIurans.length > 0) {
+          defNom = [...wIurans].sort((a,b) => b.bulan.localeCompare(a.bulan))[0].jumlah;
+        } else if (iurans.length > 0) {
+          defNom = [...iurans].sort((a,b) => b.bulan.localeCompare(a.bulan))[0].jumlah;
+        }
+      } else if (iurans.length > 0) {
+        defNom = [...iurans].sort((a,b) => b.bulan.localeCompare(a.bulan))[0].jumlah;
+      }
+
       setFormData({
         warga_id: wargaId || '',
         bulan: filterMonth,
-        jumlah: 50000,
+        jumlah: defNom,
         status: 'lunas',
         tanggal_bayar: new Date().toISOString().split('T')[0]
       });
@@ -174,13 +207,20 @@ const IuranAdmin = () => {
       // If 'belum' exists, we update it to 'lunas'
       // If no payment exists, we create new 'lunas'
       
+      let defNom = 50000;
+      if (!currentPayment) {
+        const wIurans = iurans.filter(i => i.warga_id === wargaId);
+        if (wIurans.length > 0) defNom = [...wIurans].sort((a,b) => b.bulan.localeCompare(a.bulan))[0].jumlah;
+        else if (iurans.length > 0) defNom = [...iurans].sort((a,b) => b.bulan.localeCompare(a.bulan))[0].jumlah;
+      }
+
       const paymentToSave: Iuran = currentPayment 
         ? { ...currentPayment, status: 'lunas', tanggal_bayar: new Date().toISOString().split('T')[0] }
         : {
             id: `i-${Date.now()}`,
             warga_id: wargaId,
             bulan: filterMonth,
-            jumlah: 50000,
+            jumlah: defNom,
             status: 'lunas',
             tanggal_bayar: new Date().toISOString().split('T')[0]
           };
@@ -218,7 +258,7 @@ const IuranAdmin = () => {
           <div className="p-5 rounded-2xl bg-emerald-50 text-emerald-600 shadow-sm"><CheckCircle size={28} /></div>
           <div>
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Warga Lunas</p>
-            <p className="text-3xl font-black text-emerald-600">{iurans.filter(i => i.bulan === filterMonth && i.status === 'lunas').length}</p>
+            <p className="text-3xl font-black text-emerald-600">{wargaLunas}</p>
           </div>
         </div>
         <div className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm flex items-center gap-4">
@@ -226,7 +266,7 @@ const IuranAdmin = () => {
           <div>
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Belum Bayar</p>
             <p className="text-3xl font-black text-amber-600">
-              {warga.length - iurans.filter(i => i.bulan === filterMonth && i.status === 'lunas').length}
+              {belumBayar}
             </p>
           </div>
         </div>
@@ -235,7 +275,7 @@ const IuranAdmin = () => {
           <div>
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Dana ({filterMonth})</p>
             <p className="text-3xl font-black text-sky-dark">
-              Rp {(iurans.filter(i => i.bulan === filterMonth && i.status === 'lunas').reduce((a, b) => a + b.jumlah, 0)).toLocaleString()}
+              Rp {totalDana.toLocaleString()}
             </p>
           </div>
         </div>
@@ -274,7 +314,7 @@ const IuranAdmin = () => {
         </div>
 
         <div className="overflow-x-auto text-slate-900">
-           <table className="w-full text-left">
+           <table className="w-full min-w-[800px] text-left">
             <thead>
               <tr className="border-b border-gray-50">
                 <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Warga</th>
@@ -285,9 +325,24 @@ const IuranAdmin = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filteredData.map(({ warga, payment }, i) => (
-                <motion.tr 
-                  initial={{ opacity: 0 }}
+              {filteredData.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-16 text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                        <Search size={24} className="text-gray-400" />
+                      </div>
+                      <p className="font-bold text-gray-900 text-lg">Tidak ada data warga</p>
+                      <p className="text-gray-500 font-medium text-sm mt-1">
+                        {warga.length === 0 ? "Silakan tambahkan data warga terlebih dahulu di menu Data Warga." : "Pencarian Anda tidak menemukan hasil."}
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredData.map(({ warga, payment }, i) => (
+                  <motion.tr 
+                    initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   key={warga.id} 
                   className="hover:bg-gray-50/40 transition-colors"
@@ -302,15 +357,16 @@ const IuranAdmin = () => {
                   </td>
                   <td className="px-6 py-6 text-center">
                     <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                      (payment && payment.status === 'lunas') ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'
+                      (payment && payment.status === 'lunas') ? 'bg-emerald-100 text-emerald-600' :
+                      (payment && payment.status === 'pending') ? 'bg-blue-100 text-blue-600' : 'bg-amber-100 text-amber-600'
                     }`}>
-                      {(payment && payment.status === 'lunas') ? 'Lunas' : 'Belum'}
+                      {(payment && payment.status === 'lunas') ? 'Lunas' : (payment && payment.status === 'pending') ? 'Pending' : 'Belum'}
                     </span>
                   </td>
                   <td className="px-6 py-6 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <div className="flex items-center gap-2">
-                        {(!payment || payment.status === 'belum') && (
+                        {(!payment || payment.status === 'belum' || payment.status === 'pending') && (
                           <button 
                             onClick={() => quickToggle(warga.id, payment)}
                             className="px-5 py-3 bg-emerald-50 text-emerald-600 rounded-xl font-black text-xs hover:bg-emerald-100 transition-all shadow-sm"
@@ -340,7 +396,7 @@ const IuranAdmin = () => {
                     </div>
                   </td>
                 </motion.tr>
-              ))}
+              )))}
             </tbody>
            </table>
         </div>
@@ -422,10 +478,11 @@ const IuranAdmin = () => {
                     <select 
                       className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-sky-main focus:bg-white rounded-2xl outline-none transition-all font-bold text-sky-dark"
                       value={formData.status}
-                      onChange={(e) => setFormData({...formData, status: e.target.value as 'lunas' | 'belum'})}
+                      onChange={(e) => setFormData({...formData, status: e.target.value as 'lunas' | 'belum' | 'pending'})}
                       required
                     >
                       <option value="lunas">Lunas</option>
+                      <option value="pending">Validasi Bukti (Pending)</option>
                       <option value="belum">Belum Lunas</option>
                     </select>
                   </div>

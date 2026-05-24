@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { dbService } from '../../services/dbService';
 import { 
@@ -16,18 +16,39 @@ import Avatar from '../../components/Avatar';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const warga = dbService.getWarga();
-  const kk = dbService.getKK();
-  const iuran = dbService.getIuran();
-  const surat = dbService.getSurat();
+  
+  const [warga, setWarga] = useState(() => dbService.getWarga());
+  const [kk, setKk] = useState(() => dbService.getKK());
+  const [iuran, setIuran] = useState(() => dbService.getIuran());
+  const [surat, setSurat] = useState(() => dbService.getSurat());
+
+  useEffect(() => {
+    const handleDataChange = () => {
+      setWarga(dbService.getWarga());
+      setKk(dbService.getKK());
+      setIuran(dbService.getIuran());
+      setSurat(dbService.getSurat());
+    };
+
+    window.addEventListener('storage', handleDataChange);
+    window.addEventListener('focus', handleDataChange);
+    return () => {
+      window.removeEventListener('storage', handleDataChange);
+      window.removeEventListener('focus', handleDataChange);
+    };
+  }, []);
 
   const currentMonth = useMemo(() => {
     return new Date().toISOString().slice(0, 7);
   }, []);
 
   const stats = useMemo(() => {
-    const lunasBulanIni = iuran.filter(i => i.bulan === currentMonth && i.status === 'lunas');
-    const totalDuit = lunasBulanIni.reduce((acc, curr) => acc + curr.jumlah, 0);
+    const validIurans = iuran.filter(i => 
+      i.bulan === currentMonth && 
+      i.status === 'lunas' &&
+      warga.some(w => w.id === i.warga_id)
+    );
+    const totalDuit = validIurans.reduce((acc, curr) => acc + curr.jumlah, 0);
 
     return [
       { label: 'Total Warga', value: warga.length, icon: <Users />, color: 'bg-blue-500', path: '/app/warga' },
@@ -38,7 +59,11 @@ const AdminDashboard = () => {
   }, [warga, kk, iuran, surat, currentMonth]);
 
   const iuranData = useMemo(() => {
-    const lunasCount = iuran.filter(i => i.bulan === currentMonth && i.status === 'lunas').length;
+    const lunasCount = iuran.filter(i => 
+      i.bulan === currentMonth && 
+      i.status === 'lunas' &&
+      warga.some(w => w.id === i.warga_id)
+    ).length;
     const belumCount = warga.length - lunasCount;
     
     return [

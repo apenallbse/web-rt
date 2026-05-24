@@ -124,6 +124,7 @@ const getStorage = <T,>(key: string, initial: T): T => {
 
 const setStorage = <T,>(key: string, data: T) => {
   localStorage.setItem(key, JSON.stringify(data));
+  window.dispatchEvent(new Event('storage'));
 };
 
 export const dbService = {
