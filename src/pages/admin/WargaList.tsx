@@ -1,10 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { dbService } from '../../services/dbService';
 import { Warga } from '../../types';
-import { Search, Plus, MoreVertical, Edit2, Trash2, UserPlus } from 'lucide-react';
+import { Search, Plus, MoreVertical, Edit2, Trash2, UserPlus, Printer } from 'lucide-react';
 import { motion } from 'motion/react';
 import Swal from 'sweetalert2';
 import Avatar from '../../components/Avatar';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const WargaList = () => {
   const [warga, setWarga] = useState<Warga[]>(dbService.getWarga());
@@ -220,6 +222,24 @@ const WargaList = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handlePrint = () => {
+    const doc = new jsPDF();
+    doc.text('Laporan Data Warga RT', 14, 20);
+    
+    autoTable(doc, {
+      startY: 30,
+      head: [['Nama', 'NIK', 'No HP', 'Alamat/Kelurahan']],
+      body: filteredWarga.map(w => [
+        w.nama,
+        w.nik,
+        w.no_hp || '-',
+        w.kelurahan || '-'
+      ]),
+    });
+    
+    doc.save('Data_Warga.pdf');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -233,12 +253,20 @@ const WargaList = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <button 
-          onClick={() => setShowModal(true)}
-          className="px-5 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm flex items-center gap-2 shadow-md shadow-blue-200 hover:bg-blue-700 transition-all"
-        >
-          <UserPlus size={18} /> Tambah Warga
-        </button>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={handlePrint}
+            className="px-5 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl font-bold text-sm flex items-center gap-2 shadow-sm hover:bg-slate-50 transition-all"
+          >
+            <Printer size={18} /> Cetak PDF
+          </button>
+          <button 
+            onClick={() => setShowModal(true)}
+            className="px-5 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm flex items-center gap-2 shadow-md shadow-blue-200 hover:bg-blue-700 transition-all"
+          >
+            <UserPlus size={18} /> Tambah Warga
+          </button>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 flex flex-col overflow-hidden">

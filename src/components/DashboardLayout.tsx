@@ -15,7 +15,8 @@ import {
   Calendar,
   Megaphone,
   BarChart3,
-  Wallet
+  Wallet,
+  Package
 } from 'lucide-react';
 import { dbService } from '../services/dbService';
 import Avatar from './Avatar';
@@ -67,6 +68,7 @@ const DashboardLayout = () => {
     { label: 'Kartu Keluarga', path: '/app/kk', icon: <ClipboardList size={20} /> },
     { label: 'Iuran Warga', path: '/app/iuran', icon: <CreditCard size={20} /> },
     { label: 'Keuangan RT', path: '/app/keuangan', icon: <Wallet size={20} /> },
+    { label: 'Inventaris RT', path: '/app/inventaris', icon: <Package size={20} /> },
     { label: 'Laporan', path: '/app/laporan', icon: <BarChart3 size={20} /> },
     { label: 'Surat Pengantar', path: '/app/surat', icon: <FileText size={20} /> },
     { label: 'Profil RT', path: '/app/profil-rt', icon: <UserCircle size={20} /> },

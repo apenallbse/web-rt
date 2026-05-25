@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Wallet, ArrowUpRight, ArrowDownLeft, Plus, History, DollarSign, Filter, Search, Edit2, Trash2, RefreshCcw, Loader2 } from 'lucide-react';
+import { Wallet, ArrowUpRight, ArrowDownLeft, Plus, History, DollarSign, Filter, Search, Edit2, Trash2, RefreshCcw, Loader2, Printer } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { dbService } from '../../services/dbService';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const KeuanganAdmin = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -181,6 +183,25 @@ const KeuanganAdmin = () => {
     }
   };
 
+  const handlePrint = () => {
+    const doc = new jsPDF();
+    doc.text('Laporan Keuangan RT', 14, 20);
+    
+    autoTable(doc, {
+      startY: 30,
+      head: [['Tanggal', 'Tipe', 'Kategori', 'Jumlah (Rp)', 'Keterangan']],
+      body: transactions.map(t => [
+        t.date,
+        t.type,
+        t.category,
+        t.amount.toLocaleString('id-ID'),
+        t.note || '-'
+      ]),
+    });
+    
+    doc.save('Laporan_Keuangan_RT.pdf');
+  };
+
   const displayedTransactions = showAll ? transactions : transactions.slice(0, 5);
 
   return (
@@ -191,6 +212,12 @@ const KeuanganAdmin = () => {
           <p className="text-slate-500 font-medium font-mono text-xs">Arus kas dan catatan transaksi keuangan wilayah</p>
         </div>
         <div className="flex flex-wrap gap-3">
+          <button 
+            onClick={handlePrint}
+            className="px-5 py-4 bg-white border-2 border-slate-100 text-slate-700 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-slate-50 active:scale-95 transition-all shadow-sm cursor-pointer"
+          >
+            <Printer size={18} /> Cetak PDF
+          </button>
           <button 
             onClick={handleRefresh}
             disabled={isLoading}

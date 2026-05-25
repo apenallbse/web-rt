@@ -135,52 +135,61 @@ const WargaIuran = () => {
         <p className="text-gray-500 font-medium">Pantau status pembayaran bulanan Anda</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {availableMonths.map((bulan, i) => {
-          const item = userIurans.find(ir => ir.bulan === bulan);
-          return (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.1 }}
-              key={bulan} 
-              className={`p-8 rounded-[2.5rem] border ${
-                item?.status === 'lunas' ? 'bg-white border-emerald-100' : 'bg-white border-amber-100 ring-4 ring-amber-50'
-              }`}
-            >
-              <div className="flex justify-between items-start mb-6">
-                <div className={`p-4 rounded-2xl ${
-                  item?.status === 'lunas' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
-                }`}>
-                  <Calendar size={28} />
+      <div className="bg-white rounded-[2rem] sm:rounded-[3rem] border border-gray-100 shadow-sm overflow-hidden">
+        <div className="divide-y divide-gray-100">
+          {availableMonths.map((bulan) => {
+            const item = userIurans.find(ir => ir.bulan === bulan);
+            return (
+              <div 
+                key={bulan} 
+                className={`p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors hover:bg-slate-50 ${
+                  item?.status === 'lunas' ? '' : 'bg-amber-50/10'
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 rounded-2xl shrink-0 ${
+                    item?.status === 'lunas' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                  }`}>
+                    <Calendar size={24} />
+                  </div>
+                  <div>
+                    <h4 className="font-black text-sky-dark text-lg">{new Date(bulan).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</h4>
+                    <p className="text-gray-500 font-bold text-sm">
+                      Rp {item?.jumlah ? item.jumlah.toLocaleString('id-ID') : defaultNominal.toLocaleString('id-ID')}
+                    </p>
+                  </div>
                 </div>
-                <span className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                  item?.status === 'lunas' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'
-                }`}>
-                  {item?.status === 'lunas' ? 'Terbayar' : 'Belum Bayar'}
-                </span>
+                
+                <div className="flex flex-row items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
+                  <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${
+                    item?.status === 'lunas' ? 'bg-emerald-100 text-emerald-600' : 
+                    item?.status === 'pending' ? 'bg-blue-100 text-blue-600' : 'bg-amber-100 text-amber-600'
+                  }`}>
+                    {item?.status === 'lunas' ? 'Lunas' : item?.status === 'pending' ? 'Verifikasi' : 'Belum'}
+                  </span>
+                  
+                  {item?.status === 'lunas' ? (
+                    <div className="flex flex-col items-end text-xs font-bold text-gray-400">
+                      <span className="flex items-center gap-1"><CheckCircle size={12} className="text-emerald-500" /> Selesai</span>
+                      <span className="text-[10px]">{item.tanggal_bayar}</span>
+                    </div>
+                  ) : item?.status === 'pending' ? (
+                    <div className="flex text-xs font-bold text-blue-500 opacity-80 whitespace-nowrap">
+                       Menunggu Konfirmasi
+                    </div>
+                  ) : (
+                    <button 
+                      onClick={() => handlePayRequest(bulan)}
+                      className="px-6 py-2.5 sky-gradient text-white font-bold rounded-xl shadow-md hover:scale-105 transition-transform flex items-center justify-center gap-2 cursor-pointer text-sm"
+                    >
+                      Bayar
+                    </button>
+                  )}
+                </div>
               </div>
-              
-              <h4 className="text-xl font-black text-sky-dark mb-1">{new Date(bulan).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</h4>
-              <p className="text-2xl font-black text-gray-900 mb-6 underline decoration-sky-main/20">
-                Rp {item?.jumlah ? item.jumlah.toLocaleString('id-ID') : defaultNominal.toLocaleString('id-ID')}
-              </p>
-              
-              {item?.status === 'lunas' ? (
-                <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
-                  <CheckCircle size={14} className="text-emerald-500" /> Dibayar pada: {item.tanggal_bayar}
-                </div>
-              ) : (
-                <button 
-                  onClick={() => handlePayRequest(bulan)}
-                  className="w-full py-4 sky-gradient text-white font-bold rounded-2xl shadow-lg shadow-sky-main/20 hover:scale-105 transition-transform flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <CreditCard size={18} /> Bayar Sekarang
-                </button>
-              )}
-            </motion.div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       <AnimatePresence>

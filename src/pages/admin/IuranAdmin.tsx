@@ -1,9 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { dbService } from '../../services/dbService';
 import { Iuran, Warga } from '../../types';
-import { CreditCard, Filter, CheckCircle, XCircle, Search, Calendar, Edit2, Trash2, Plus } from 'lucide-react';
+import { CreditCard, Filter, CheckCircle, XCircle, Search, Calendar, Edit2, Trash2, Plus, Printer } from 'lucide-react';
 import { motion } from 'motion/react';
 import Swal from 'sweetalert2';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const IuranAdmin = () => {
   const [iurans, setIurans] = useState<Iuran[]>(() => dbService.getIuran());
@@ -251,6 +253,28 @@ const IuranAdmin = () => {
     }
   };
 
+  const handlePrint = () => {
+    const doc = new jsPDF();
+    doc.text(`Laporan Iuran RT - Bulan ${filterMonth}`, 14, 20);
+    
+    autoTable(doc, {
+      startY: 30,
+      head: [['Nama Warga', 'Bulan', 'Jumlah', 'Status', 'Tanggal Bayar']],
+      body: warga.map(w => {
+        const payment = iurans.find(i => i.warga_id === w.id && i.bulan === filterMonth);
+        return [
+          w.nama,
+          filterMonth,
+          payment?.jumlah ? `Rp ${payment.jumlah.toLocaleString('id-ID')}` : '-',
+          payment?.status === 'lunas' ? 'Lunas' : 'Belum Bayar',
+          payment?.tanggal_bayar || '-'
+        ];
+      }),
+    });
+    
+    doc.save(`Laporan_Iuran_${filterMonth}.pdf`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -304,6 +328,12 @@ const IuranAdmin = () => {
                 onChange={(e) => setFilterMonth(e.target.value)}
               />
             </div>
+            <button 
+              onClick={handlePrint}
+              className="px-8 py-4 bg-white border border-gray-200 text-gray-700 font-bold rounded-2xl shadow-sm hover:bg-gray-50 flex items-center gap-2 flex-1 justify-center xl:flex-none transition-all"
+            >
+              <Printer size={20} /> Cetak PDF
+            </button>
             <button 
               onClick={() => handleOpenModal()}
               className="px-8 py-4 bg-sky-main text-white font-black rounded-2xl shadow-xl shadow-sky-main/20 hover:scale-[1.03] transition-transform flex items-center gap-2 flex-1 justify-center xl:flex-none"

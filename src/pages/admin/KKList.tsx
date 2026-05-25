@@ -1,9 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { dbService } from '../../services/dbService';
 import { KartuKeluarga, Warga } from '../../types';
-import { Search, ClipboardList, Plus, MapPin, User, Edit2, Trash2, X, Users } from 'lucide-react';
+import { Search, ClipboardList, Plus, MapPin, User, Edit2, Trash2, X, Users, Printer } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Swal from 'sweetalert2';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const KKList = () => {
   const [kkList, setKKList] = useState<KartuKeluarga[]>(dbService.getKK());
@@ -168,6 +170,24 @@ const KKList = () => {
     }
   };
 
+  const handlePrint = () => {
+    const doc = new jsPDF();
+    doc.text('Laporan Data Kartu Keluarga RT', 14, 20);
+    
+    autoTable(doc, {
+      startY: 30,
+      head: [['No KK', 'Kepala Keluarga', 'Alamat', 'RT/RW']],
+      body: filteredKK.map(kk => [
+        kk.no_kk,
+        kk.kepala_keluarga,
+        kk.alamat || '-',
+        `${kk.rt || '-'}/${kk.rw || '-'}`
+      ]),
+    });
+    
+    doc.save('Data_Kartu_Keluarga.pdf');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -181,12 +201,20 @@ const KKList = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <button 
-          onClick={() => setShowModal(true)}
-          className="px-6 py-4 bg-blue-600 text-white font-black rounded-2xl shadow-lg shadow-blue-200 flex items-center gap-2 hover:scale-[1.02] transition-transform"
-        >
-          <Plus size={20} /> Tambah Kartu Keluarga
-        </button>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={handlePrint}
+            className="px-6 py-4 bg-white text-gray-700 font-bold rounded-2xl shadow-sm hover:bg-gray-50 flex items-center gap-2 border border-gray-200 transition-all"
+          >
+            <Printer size={20} /> Cetak PDF
+          </button>
+          <button 
+            onClick={() => setShowModal(true)}
+            className="px-6 py-4 bg-blue-600 text-white font-black rounded-2xl shadow-lg shadow-blue-200 flex items-center gap-2 hover:scale-[1.02] transition-transform"
+          >
+            <Plus size={20} /> Tambah Kartu Keluarga
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

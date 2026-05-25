@@ -4,6 +4,7 @@ import { Surat, Warga } from '../../types';
 import { Check, X, Clock, FileText, Printer, Search, Trash2, Plus, Edit2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import Swal from 'sweetalert2';
+import html2pdf from 'html2pdf.js';
 
 const SuratAdmin = () => {
   const [surats, setSurats] = useState<Surat[]>(dbService.getSurat());
@@ -130,9 +131,28 @@ const SuratAdmin = () => {
     setSelectedForPrint(s);
   };
 
-  const triggerPrint = () => {
-    window.focus();
-    window.print();
+  const triggerPrint = async () => {
+    const printElement = document.getElementById('print-area-admin');
+    if (!printElement) {
+      Swal.fire('Error', 'Template tidak ditemukan', 'error');
+      return;
+    }
+
+    try {
+      const opt = {
+        margin:       [0.5, 0.5, 0.5, 0.5] as [number, number, number, number],
+        filename:     `Surat_Pengantar_${selectedForPrint?.no_surat || Date.now()}.pdf`,
+        image:        { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, windowWidth: printElement.scrollWidth },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' as const }
+      };
+      
+      // html2pdf is imported as default
+      html2pdf().set(opt).from(printElement).save();
+    } catch (error) {
+      console.error("Error generating PDF", error);
+      Swal.fire('Error', 'Gagal membuat file PDF', 'error');
+    }
   };
 
   return (
@@ -389,7 +409,7 @@ const SuratAdmin = () => {
             {(() => {
               const targetWarga = wargas.find(w => w.id === selectedForPrint.warga_id);
               return (
-                <div className="bg-white shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-200 p-12 md:p-16 w-full max-w-[21cm] min-h-[29.7cm] text-black font-serif text-sm leading-relaxed">
+                <div id="print-area-admin" className="bg-white shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-200 p-12 md:p-16 w-full max-w-[21cm] min-h-[29.7cm] text-black font-serif text-sm leading-relaxed">
             {/* Header / Kop Surat */}
             <div className="flex border-b-4 border-double border-black pb-4 mb-2">
               <div className="flex-1 text-center pr-12 space-y-0.5">

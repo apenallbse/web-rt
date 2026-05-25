@@ -138,6 +138,16 @@ export interface AgendaIzin {
   created_at: string;
 }
 
+export interface Inventaris {
+  id: string;
+  nama_barang: string;
+  kode_barang: string;
+  jumlah: number;
+  kondisi: 'baik' | 'rusak_ringan' | 'rusak_berat';
+  tanggal_masuk: string;
+  keterangan: string;
+}
+
 export interface NotificationSettings {
   reports: boolean;
   finance: boolean;

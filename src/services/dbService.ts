@@ -1,4 +1,4 @@
-import { Warga, KartuKeluarga, Iuran, Surat, RTProfile, Agenda, NotificationSettings, AgendaIzin } from '../types';
+import { Warga, KartuKeluarga, Iuran, Surat, RTProfile, Agenda, NotificationSettings, AgendaIzin, Inventaris } from '../types';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 // Mock Initial Data
@@ -318,5 +318,25 @@ export const dbService = {
 
   // Settings
   getSettings: () => getStorage<NotificationSettings>('skyrt_notifications_v1', INITIAL_NOTIFICATION_SETTINGS),
-  saveSettings: (data: NotificationSettings) => setStorage('skyrt_notifications_v1', data)
+  saveSettings: (data: NotificationSettings) => setStorage('skyrt_notifications_v1', data),
+
+  // Inventaris
+  getInventaris: () => getStorage<Inventaris[]>('skyrt_inventaris_v1', []),
+  saveInventaris: (data: Inventaris[]) => setStorage('skyrt_inventaris_v1', data),
+  addInventaris: (inv: Inventaris) => {
+    const all = dbService.getInventaris();
+    dbService.saveInventaris([...all, inv]);
+  },
+  updateInventaris: (id: string, updates: Partial<Inventaris>) => {
+    const all = dbService.getInventaris();
+    const updated = all.map(inv => inv.id === id ? { ...inv, ...updates } : inv);
+    dbService.saveInventaris(updated);
+    return updated;
+  },
+  deleteInventaris: (id: string) => {
+    const all = dbService.getInventaris();
+    const updated = all.filter(inv => inv.id !== id);
+    dbService.saveInventaris(updated);
+    return updated;
+  }
 };

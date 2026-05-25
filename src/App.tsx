@@ -16,6 +16,7 @@ import PengumumanAdmin from './pages/admin/PengumumanAdmin';
 import LaporanAdmin from './pages/admin/LaporanAdmin';
 import KeuanganAdmin from './pages/admin/KeuanganAdmin';
 import SettingsAdmin from './pages/admin/SettingsAdmin';
+import InventarisAdmin from './pages/admin/InventarisAdmin';
 import WargaDashboard from './pages/warga/WargaDashboard';
 import WargaProfile from './pages/warga/WargaProfile';
 import WargaIuran from './pages/warga/WargaIuran';
@@ -59,6 +60,7 @@ const AppRoutes = () => {
         <Route path="pengumuman" element={<ProtectedRoute roles={['admin']}><PengumumanAdmin /></ProtectedRoute>} />
         <Route path="laporan" element={<ProtectedRoute roles={['admin']}><LaporanAdmin /></ProtectedRoute>} />
         <Route path="keuangan" element={<ProtectedRoute roles={['admin']}><KeuanganAdmin /></ProtectedRoute>} />
+        <Route path="inventaris" element={<ProtectedRoute roles={['admin']}><InventarisAdmin /></ProtectedRoute>} />
         <Route path="settings" element={<ProtectedRoute roles={['admin']}><SettingsAdmin /></ProtectedRoute>} />
         
         {/* Warga Routes */}
