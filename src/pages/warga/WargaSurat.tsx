@@ -5,7 +5,6 @@ import { Surat, Warga } from '../../types';
 import { Send, FileText, History, CheckCircle, Clock, AlertCircle, Printer } from 'lucide-react';
 import { motion } from 'motion/react';
 import Swal from 'sweetalert2';
-import html2pdf from 'html2pdf.js';
 
 const WargaSurat = () => {
   const { user } = useAuth();
@@ -24,26 +23,7 @@ const WargaSurat = () => {
   };
 
   const triggerPrint = async () => {
-    const printElement = document.getElementById('print-area-warga');
-    if (!printElement) {
-      Swal.fire('Error', 'Template tidak ditemukan', 'error');
-      return;
-    }
-
-    try {
-      const opt = {
-        margin:       [0.5, 0.5, 0.5, 0.5] as [number, number, number, number],
-        filename:     `Surat_Pengantar_${selectedForPrint?.no_surat || Date.now()}.pdf`,
-        image:        { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, windowWidth: printElement.scrollWidth },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' as const }
-      };
-      
-      html2pdf().set(opt).from(printElement).save();
-    } catch (error) {
-      console.error("Error generating PDF", error);
-      Swal.fire('Error', 'Gagal membuat file PDF', 'error');
-    }
+    window.print();
   };
 
   const handleSubmit = (e: React.FormEvent) => {

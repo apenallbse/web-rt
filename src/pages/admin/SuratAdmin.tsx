@@ -4,7 +4,6 @@ import { Surat, Warga } from '../../types';
 import { Check, X, Clock, FileText, Printer, Search, Trash2, Plus, Edit2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import Swal from 'sweetalert2';
-import html2pdf from 'html2pdf.js';
 
 const SuratAdmin = () => {
   const [surats, setSurats] = useState<Surat[]>(dbService.getSurat());
@@ -132,27 +131,7 @@ const SuratAdmin = () => {
   };
 
   const triggerPrint = async () => {
-    const printElement = document.getElementById('print-area-admin');
-    if (!printElement) {
-      Swal.fire('Error', 'Template tidak ditemukan', 'error');
-      return;
-    }
-
-    try {
-      const opt = {
-        margin:       [0.5, 0.5, 0.5, 0.5] as [number, number, number, number],
-        filename:     `Surat_Pengantar_${selectedForPrint?.no_surat || Date.now()}.pdf`,
-        image:        { type: 'jpeg' as const, quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, windowWidth: printElement.scrollWidth },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' as const }
-      };
-      
-      // html2pdf is imported as default
-      html2pdf().set(opt).from(printElement).save();
-    } catch (error) {
-      console.error("Error generating PDF", error);
-      Swal.fire('Error', 'Gagal membuat file PDF', 'error');
-    }
+    window.print();
   };
 
   return (

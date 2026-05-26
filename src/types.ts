@@ -81,6 +81,7 @@ export interface Surat {
 }
 
 export interface RTProfile {
+  id?: string;
   no_rt: string;
   nama_ketua: string;
   alamat: string;
