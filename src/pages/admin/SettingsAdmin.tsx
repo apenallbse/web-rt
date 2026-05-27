@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Settings, Users, Shield, Bell, Lock, Globe, Save, FileText, TrendingUp, Eye, EyeOff, Upload, Image } from 'lucide-react';
+import { Settings, Users, Shield, Bell, Lock, Globe, Save, FileText, TrendingUp, Eye, EyeOff, Upload, Image, Wallet } from 'lucide-react';
 import Swal from 'sweetalert2';
 import WargaList from './WargaList';
 import { dbService } from '../../services/dbService';
@@ -64,7 +64,7 @@ const SettingsAdmin = () => {
   };
 
   const handleSave = (title: string, message: string) => {
-    if (activeTab === 'general') {
+    if (activeTab === 'general' || activeTab === 'finance') {
       dbService.saveRTProfile(profile);
       window.dispatchEvent(new Event('profile_updated'));
     }
@@ -158,6 +158,13 @@ const SettingsAdmin = () => {
             icon={<Settings size={18} />} 
             label="Umum" 
             sub="Dasar & Tampilan"
+          />
+           <TabButton 
+            active={activeTab === 'finance'} 
+            onClick={() => setActiveTab('finance')} 
+            icon={<Wallet size={18} />} 
+            label="Keuangan" 
+            sub="Iuran & Rekening"
           />
            <TabButton 
             active={activeTab === 'users'} 
@@ -381,6 +388,46 @@ const SettingsAdmin = () => {
                <div className="pt-8 border-t border-slate-50">
                   <button 
                     onClick={() => handleSave('Berhasil!', 'Pengaturan umum telah diperbarui.')}
+                    className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-200 cursor-pointer"
+                  >
+                    <Save size={18} /> Simpan Perubahan
+                  </button>
+               </div>
+            </div>
+          )}
+          {activeTab === 'finance' && (
+            <div className="space-y-8">
+               <div className="space-y-1">
+                  <h3 className="text-xl font-black text-slate-800">Pengaturan Keuangan</h3>
+                  <p className="text-sm text-slate-400 font-medium font-mono">Nilai iuran bulanan dan informasi rekening</p>
+               </div>
+               
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nominal Iuran Bulanan (Rp)</label>
+                    <input 
+                      type="number"
+                      value={profile.nominal_iuran || 50000}
+                      onChange={(e) => setProfile({ ...profile, nominal_iuran: parseInt(e.target.value) || 0 })}
+                      className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent focus:border-sky-main rounded-2xl outline-none font-bold text-slate-700"
+                      placeholder="50000"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Informasi Rekening / Tujuan Transfer</label>
+                    <input 
+                      type="text"
+                      value={profile.info_rekening || '0812-3456-7890 (BCA / Mandiri)'}
+                      onChange={(e) => setProfile({ ...profile, info_rekening: e.target.value })}
+                      className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent focus:border-sky-main rounded-2xl outline-none font-bold text-slate-700"
+                      placeholder="BCA 1234567890 a.n Alex"
+                    />
+                  </div>
+               </div>
+
+               <div className="pt-8 border-t border-slate-50">
+                  <button 
+                    onClick={() => handleSave('Berhasil!', 'Pengaturan keuangan telah diperbarui.')}
                     className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-200 cursor-pointer"
                   >
                     <Save size={18} /> Simpan Perubahan

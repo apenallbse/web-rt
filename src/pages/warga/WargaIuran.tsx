@@ -8,10 +8,12 @@ import Swal from 'sweetalert2';
 const WargaIuran = () => {
   const { user } = useAuth();
   const [iurans, setIurans] = useState(() => dbService.getIuran());
+  const [rtProfile, setRtProfile] = useState(() => dbService.getRTProfile());
   
   React.useEffect(() => {
     const handleStorageChange = () => {
       setIurans(dbService.getIuran());
+      setRtProfile(dbService.getRTProfile());
     };
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('focus', handleStorageChange);
@@ -27,12 +29,8 @@ const WargaIuran = () => {
   
   const userIurans = iurans.filter(i => i.warga_id === user?.wargaId);
   
-  const defaultNominal = userIurans.length > 0 
-    ? [...userIurans].sort((a, b) => b.bulan.localeCompare(a.bulan))[0].jumlah 
-    : iurans.length > 0 
-      ? [...iurans].sort((a, b) => b.bulan.localeCompare(a.bulan))[0].jumlah 
-      : 50000;
-
+  const defaultNominal = rtProfile.nominal_iuran || 50000;
+  
   const handlePayRequest = (bulan: string) => {
     setSelectedBulan(bulan);
     setSelectedFile(null);
@@ -155,7 +153,7 @@ const WargaIuran = () => {
                   <div>
                     <h4 className="font-black text-sky-dark text-lg">{new Date(bulan).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}</h4>
                     <p className="text-gray-500 font-bold text-sm">
-                      Rp {item?.jumlah ? item.jumlah.toLocaleString('id-ID') : defaultNominal.toLocaleString('id-ID')}
+                      Rp {((item?.status === 'lunas' || item?.status === 'pending') && item?.jumlah) ? item.jumlah.toLocaleString('id-ID') : defaultNominal.toLocaleString('id-ID')}
                     </p>
                   </div>
                 </div>
@@ -195,7 +193,9 @@ const WargaIuran = () => {
       <AnimatePresence>
         {showPaymentModal && (() => {
           const selectedItem = userIurans.find(ir => ir.bulan === selectedBulan);
-          const nominal = selectedItem?.jumlah ?? defaultNominal;
+          const nominal = (selectedItem?.status === 'lunas' || selectedItem?.status === 'pending') 
+            ? selectedItem.jumlah 
+            : defaultNominal;
           return (
           <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
             <motion.div 
@@ -236,7 +236,7 @@ const WargaIuran = () => {
                       <p className="text-[10px] font-bold uppercase opacity-60 tracking-widest mb-1 text-sky-200">Tujuan Transfer (Admin RT)</p>
                       <p className="font-bold flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                        0812-3456-7890 (BCA / Mandiri)
+                        {rtProfile.info_rekening || '0812-3456-7890 (BCA / Mandiri)'}
                       </p>
                     </div>
                   </div>

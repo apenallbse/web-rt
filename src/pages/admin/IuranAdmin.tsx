@@ -31,7 +31,7 @@ const IuranAdmin = () => {
   const [formData, setFormData] = useState({
     warga_id: '',
     bulan: filterMonth,
-    jumlah: 50000,
+    jumlah: dbService.getRTProfile().nominal_iuran || 50000,
     status: 'lunas' as 'lunas' | 'belum' | 'pending',
     tanggal_bayar: new Date().toISOString().split('T')[0]
   });
@@ -74,18 +74,8 @@ const IuranAdmin = () => {
       });
     } else {
       setEditId(null);
-      let defNom = 50000;
-      if (wargaId) {
-        const wIurans = iurans.filter(i => i.warga_id === wargaId);
-        if (wIurans.length > 0) {
-          defNom = [...wIurans].sort((a,b) => b.bulan.localeCompare(a.bulan))[0].jumlah;
-        } else if (iurans.length > 0) {
-          defNom = [...iurans].sort((a,b) => b.bulan.localeCompare(a.bulan))[0].jumlah;
-        }
-      } else if (iurans.length > 0) {
-        defNom = [...iurans].sort((a,b) => b.bulan.localeCompare(a.bulan))[0].jumlah;
-      }
-
+      let defNom = dbService.getRTProfile().nominal_iuran || 50000;
+      
       setFormData({
         warga_id: wargaId || '',
         bulan: filterMonth,

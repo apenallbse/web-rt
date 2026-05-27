@@ -112,6 +112,8 @@ export interface RTProfile {
   tentang_nilai?: string;
   two_factor_secret?: string;
   two_factor_enabled?: boolean;
+  nominal_iuran?: number;
+  info_rekening?: string;
 }
 
 export interface Agenda {
