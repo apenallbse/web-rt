@@ -470,7 +470,7 @@ const SettingsAdmin = () => {
                         </div>
                      </div>
                      <Toggle 
-                        checked={profile.two_factor_enabled || false} 
+                        checked={profile.two_factor_enabled || setup2FA.active || false} 
                         onChange={(val: boolean) => {
                           if (val) {
                             const secret = new OTPAuth.Secret({ size: 20 });
@@ -486,6 +486,14 @@ const SettingsAdmin = () => {
                           } else {
                             setProfile({ ...profile, two_factor_enabled: false, two_factor_secret: undefined });
                             setSetup2FA({ active: false, secretRef: '', uri: '', code: '' });
+                            
+                            // Auto save disable action 
+                            const rtProfile = dbService.getRTProfile();
+                            dbService.saveRTProfile({
+                              ...rtProfile,
+                              two_factor_enabled: false,
+                              two_factor_secret: undefined
+                            });
                           }
                         }} 
                      />
@@ -520,7 +528,13 @@ const SettingsAdmin = () => {
                         if (delta !== null) {
                           setProfile({ ...profile, two_factor_enabled: true, two_factor_secret: setup2FA.secretRef });
                           setSetup2FA({ ...setup2FA, active: false });
-                          Swal.fire('Berhasil', '2FA telah diaktifkan. Ingat untuk menyimpan pengaturan!', 'success');
+                          const rtProfile = dbService.getRTProfile();
+                          dbService.saveRTProfile({
+                            ...rtProfile,
+                            two_factor_enabled: true,
+                            two_factor_secret: setup2FA.secretRef
+                          });
+                          Swal.fire('Berhasil', '2FA telah diaktifkan.', 'success');
                         } else {
                           Swal.fire('Kode Salah', 'Kode Autentikator Google tidak valid.', 'error');
                         }
