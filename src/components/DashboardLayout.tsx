@@ -16,7 +16,8 @@ import {
   Megaphone,
   BarChart3,
   Wallet,
-  Package
+  Package,
+  UserCog
 } from 'lucide-react';
 import { dbService } from '../services/dbService';
 import Avatar from './Avatar';
@@ -75,6 +76,7 @@ const DashboardLayout = () => {
     { label: 'Laporan', path: '/app/laporan', icon: <BarChart3 size={20} />, roles: ['admin'] },
     { label: 'Surat Pengantar', path: '/app/surat', icon: <FileText size={20} />, roles: ['admin', 'sekretaris'] },
     { label: 'Profil RT', path: '/app/profil-rt', icon: <UserCircle size={20} />, roles: ['admin'] },
+    { label: 'Manajemen User', path: '/app/manajemen-user', icon: <UserCog size={20} />, roles: ['admin'] },
   ];
 
   const wargaMenu = [

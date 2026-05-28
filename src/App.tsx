@@ -21,6 +21,7 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardLayout from './components/DashboardLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import WargaList from './pages/admin/WargaList';
+import ManajemenUser from './pages/admin/ManajemenUser';
 import KKList from './pages/admin/KKList';
 import IuranAdmin from './pages/admin/IuranAdmin';
 import SuratAdmin from './pages/admin/SuratAdmin';
@@ -66,6 +67,7 @@ const AppRoutes = () => {
         
         {/* Admin/Pengurus Routes */}
         <Route path="warga" element={<ProtectedRoute roles={['admin', 'sekretaris']}><WargaList /></ProtectedRoute>} />
+        <Route path="manajemen-user" element={<ProtectedRoute roles={['admin']}><ManajemenUser /></ProtectedRoute>} />
         <Route path="kk" element={<ProtectedRoute roles={['admin', 'sekretaris']}><KKList /></ProtectedRoute>} />
         <Route path="iuran" element={<ProtectedRoute roles={['admin', 'bendahara']}><IuranAdmin /></ProtectedRoute>} />
         <Route path="surat" element={<ProtectedRoute roles={['admin', 'sekretaris']}><SuratAdmin /></ProtectedRoute>} />
