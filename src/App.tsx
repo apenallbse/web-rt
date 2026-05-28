@@ -62,18 +62,18 @@ const AppRoutes = () => {
           <DashboardLayout />
         </ProtectedRoute>
       }>
-        <Route index element={user?.role === 'admin' ? <AdminDashboard /> : <WargaDashboard />} />
+        <Route index element={['admin', 'sekretaris', 'bendahara'].includes(user?.role || '') ? <AdminDashboard /> : <WargaDashboard />} />
         
-        {/* Admin Routes */}
-        <Route path="warga" element={<ProtectedRoute roles={['admin']}><WargaList /></ProtectedRoute>} />
-        <Route path="kk" element={<ProtectedRoute roles={['admin']}><KKList /></ProtectedRoute>} />
-        <Route path="iuran" element={<ProtectedRoute roles={['admin']}><IuranAdmin /></ProtectedRoute>} />
-        <Route path="surat" element={<ProtectedRoute roles={['admin']}><SuratAdmin /></ProtectedRoute>} />
+        {/* Admin/Pengurus Routes */}
+        <Route path="warga" element={<ProtectedRoute roles={['admin', 'sekretaris']}><WargaList /></ProtectedRoute>} />
+        <Route path="kk" element={<ProtectedRoute roles={['admin', 'sekretaris']}><KKList /></ProtectedRoute>} />
+        <Route path="iuran" element={<ProtectedRoute roles={['admin', 'bendahara']}><IuranAdmin /></ProtectedRoute>} />
+        <Route path="surat" element={<ProtectedRoute roles={['admin', 'sekretaris']}><SuratAdmin /></ProtectedRoute>} />
         <Route path="profil-rt" element={<ProtectedRoute roles={['admin']}><AdminProfile /></ProtectedRoute>} />
-        <Route path="agenda" element={<ProtectedRoute roles={['admin']}><AgendaAdmin /></ProtectedRoute>} />
-        <Route path="pengumuman" element={<ProtectedRoute roles={['admin']}><PengumumanAdmin /></ProtectedRoute>} />
+        <Route path="agenda" element={<ProtectedRoute roles={['admin', 'sekretaris']}><AgendaAdmin /></ProtectedRoute>} />
+        <Route path="pengumuman" element={<ProtectedRoute roles={['admin', 'sekretaris']}><PengumumanAdmin /></ProtectedRoute>} />
         <Route path="laporan" element={<ProtectedRoute roles={['admin']}><LaporanAdmin /></ProtectedRoute>} />
-        <Route path="keuangan" element={<ProtectedRoute roles={['admin']}><KeuanganAdmin /></ProtectedRoute>} />
+        <Route path="keuangan" element={<ProtectedRoute roles={['admin', 'bendahara']}><KeuanganAdmin /></ProtectedRoute>} />
         <Route path="inventaris" element={<ProtectedRoute roles={['admin']}><InventarisAdmin /></ProtectedRoute>} />
         <Route path="settings" element={<ProtectedRoute roles={['admin']}><SettingsAdmin /></ProtectedRoute>} />
         

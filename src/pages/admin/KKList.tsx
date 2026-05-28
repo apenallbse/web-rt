@@ -273,7 +273,7 @@ const KKList = () => {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl p-10 relative"
+              className="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl p-6 sm:p-10 relative overflow-y-auto max-h-[95vh] sm:max-h-[90vh]"
             >
               <button onClick={handleCloseModal} className="absolute top-6 right-6 p-2 text-gray-400 hover:text-red-500 transition-colors">
                 <X size={24} />

@@ -24,7 +24,7 @@ const AgendaAdmin = () => {
     const { value: formValues } = await Swal.fire({
       title: '<span class="font-black uppercase tracking-tight text-slate-800">Ubah Izin Warga</span>',
       html: `
-        <div class="text-left space-y-4">
+        <div class="text-left space-y-4 max-h-[65vh] overflow-y-auto">
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Status Izin</label>
             <select id="swal-status" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl outline-none font-bold">
@@ -137,7 +137,7 @@ const AgendaAdmin = () => {
     const { value: formValues } = await Swal.fire({
       title: '<span class="font-black uppercase tracking-tight text-slate-800">Tambah Agenda Baru</span>',
       html: `
-        <div class="space-y-4 text-left p-2">
+        <div class="space-y-4 text-left p-2 max-h-[65vh] overflow-y-auto">
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Judul Kegiatan</label>
             <input id="swal-title" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none font-bold text-slate-700" placeholder="Contoh: Kerja Bakti">
@@ -216,7 +216,7 @@ const AgendaAdmin = () => {
     const { value: formValues } = await Swal.fire({
       title: '<span class="font-black uppercase tracking-tight text-slate-800">Edit Agenda</span>',
       html: `
-        <div class="space-y-4 text-left p-2">
+        <div class="space-y-4 text-left p-2 max-h-[65vh] overflow-y-auto">
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Judul Kegiatan</label>
             <input id="swal-title" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none font-bold text-slate-700" value="${agenda.title}">

@@ -239,9 +239,9 @@ const WargaAgenda = () => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]"
             >
-              <div className="p-8 sky-gradient text-white relative">
+              <div className="p-8 sky-gradient text-white relative shrink-0">
                 <button
                   onClick={() => setSelectedAgenda(null)}
                   className="absolute top-6 right-6 p-2 hover:bg-white/20 rounded-full transition-colors"
@@ -259,7 +259,7 @@ const WargaAgenda = () => {
                 </div>
               </div>
 
-              <form onSubmit={handleAjukanIzin} className="p-8 space-y-6">
+              <form onSubmit={handleAjukanIzin} className="p-8 space-y-6 overflow-y-auto">
                 <div className="space-y-4">
                   <div>
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Kegiatan</label>

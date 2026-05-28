@@ -20,9 +20,10 @@ const LoginPage = () => {
   const navigate = useNavigate();
 
   const verifyCredentialsFirst = () => {
-    const isAdminEmail = email === 'admin@skyrt.id';
+    const emailLower = email.toLowerCase();
+    const isPengurusEmail = ['admin@skyrt.id', 'sekretaris@skyrt.id', 'bendahara@skyrt.id'].includes(emailLower);
     
-    if (isAdminEmail) {
+    if (isPengurusEmail) {
       const rtProfile = dbService.getRTProfile();
       // Allow 123 as fallback password in case of lockout
       if (password && password !== '123' && rtProfile.password && password !== rtProfile.password) {
@@ -31,7 +32,7 @@ const LoginPage = () => {
       return { success: true, user2FAEnabled: !!rtProfile.two_factor_enabled, secret: rtProfile.two_factor_secret || null };
     }
     
-    const warga = dbService.getWarga().find(w => w.email === email);
+    const warga = dbService.getWarga().find(w => w.email === emailLower);
     if (!warga) {
       // Just returning false for not found or incorrect
       return { success: false };

@@ -35,8 +35,11 @@ const DashboardLayout = () => {
     const loadProfile = () => {
       const adminData = dbService.getRTProfile();
       setRtProfile(adminData);
-      if (user?.role === 'admin') {
-        setProfile({ name: adminData.nama_ketua, avatar_url: adminData.avatar_url, id: 'admin' });
+      if (['admin', 'sekretaris', 'bendahara'].includes(user?.role || '')) {
+        let displayName = adminData.nama_ketua;
+        if (user?.role === 'sekretaris') displayName = 'Sekretaris RT';
+        if (user?.role === 'bendahara') displayName = 'Bendahara RT';
+        setProfile({ name: displayName, avatar_url: adminData.avatar_url, id: 'admin' });
       } else if (user?.role === 'warga' && user?.email) {
         const wargaData = dbService.getOrCreateWarga(user.email);
         setProfile({ name: wargaData.nama, avatar_url: wargaData.avatar_url, id: wargaData.id });
@@ -61,17 +64,17 @@ const DashboardLayout = () => {
   }, [user]);
 
   const adminMenu = [
-    { label: 'Dashboard', path: '/app', icon: <LayoutDashboard size={20} /> },
-    { label: 'Agenda & Kegiatan', path: '/app/agenda', icon: <Calendar size={20} /> },
-    { label: 'Pengumuman', path: '/app/pengumuman', icon: <Megaphone size={20} /> },
-    { label: 'Data Warga', path: '/app/warga', icon: <Users size={20} /> },
-    { label: 'Kartu Keluarga', path: '/app/kk', icon: <ClipboardList size={20} /> },
-    { label: 'Iuran Warga', path: '/app/iuran', icon: <CreditCard size={20} /> },
-    { label: 'Keuangan RT', path: '/app/keuangan', icon: <Wallet size={20} /> },
-    { label: 'Inventaris RT', path: '/app/inventaris', icon: <Package size={20} /> },
-    { label: 'Laporan', path: '/app/laporan', icon: <BarChart3 size={20} /> },
-    { label: 'Surat Pengantar', path: '/app/surat', icon: <FileText size={20} /> },
-    { label: 'Profil RT', path: '/app/profil-rt', icon: <UserCircle size={20} /> },
+    { label: 'Dashboard', path: '/app', icon: <LayoutDashboard size={20} />, roles: ['admin', 'sekretaris', 'bendahara'] },
+    { label: 'Agenda & Kegiatan', path: '/app/agenda', icon: <Calendar size={20} />, roles: ['admin', 'sekretaris'] },
+    { label: 'Pengumuman', path: '/app/pengumuman', icon: <Megaphone size={20} />, roles: ['admin', 'sekretaris'] },
+    { label: 'Data Warga', path: '/app/warga', icon: <Users size={20} />, roles: ['admin', 'sekretaris'] },
+    { label: 'Kartu Keluarga', path: '/app/kk', icon: <ClipboardList size={20} />, roles: ['admin', 'sekretaris'] },
+    { label: 'Iuran Warga', path: '/app/iuran', icon: <CreditCard size={20} />, roles: ['admin', 'bendahara'] },
+    { label: 'Keuangan RT', path: '/app/keuangan', icon: <Wallet size={20} />, roles: ['admin', 'bendahara'] },
+    { label: 'Inventaris RT', path: '/app/inventaris', icon: <Package size={20} />, roles: ['admin'] },
+    { label: 'Laporan', path: '/app/laporan', icon: <BarChart3 size={20} />, roles: ['admin'] },
+    { label: 'Surat Pengantar', path: '/app/surat', icon: <FileText size={20} />, roles: ['admin', 'sekretaris'] },
+    { label: 'Profil RT', path: '/app/profil-rt', icon: <UserCircle size={20} />, roles: ['admin'] },
   ];
 
   const wargaMenu = [
@@ -83,7 +86,9 @@ const DashboardLayout = () => {
     { label: 'Pengajuan Surat', path: '/app/pengajuan-surat', icon: <FileText size={20} /> },
   ];
 
-  const menu = user?.role === 'admin' ? adminMenu : wargaMenu;
+  const menu = ['admin', 'sekretaris', 'bendahara'].includes(user?.role || '') 
+    ? adminMenu.filter(item => item.roles.includes(user?.role || ''))
+    : wargaMenu;
 
   return (
     <div className="flex h-screen bg-[#f8fafc] overflow-hidden">
@@ -198,7 +203,11 @@ const DashboardLayout = () => {
               </div>
               <div className="relative">
                 <button 
-                  onClick={() => navigate(user?.role === 'admin' ? '/app/profil-rt' : '/app/profil')}
+                  onClick={() => {
+                    if (user?.role === 'admin') navigate('/app/profil-rt');
+                    else if (user?.role === 'warga') navigate('/app/profil');
+                    else navigate('/app');
+                  }}
                   className="w-10 h-10 rounded-2xl flex items-center justify-center transition-all cursor-pointer shadow-sm hover:shadow-md hover:scale-105"
                   title="Klik untuk ke profil"
                 >

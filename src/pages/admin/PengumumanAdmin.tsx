@@ -21,7 +21,7 @@ const PengumumanAdmin = () => {
     const { value: formValues } = await Swal.fire({
       title: '<span class="font-black uppercase tracking-tight text-slate-800">Buat Pengumuman</span>',
       html: `
-        <div class="space-y-4 text-left p-2">
+        <div class="space-y-4 text-left p-2 max-h-[65vh] overflow-y-auto">
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Judul Pengumuman</label>
             <input id="swal-title" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none font-bold text-slate-700" placeholder="Contoh: Kerja Bakti Rutin">
@@ -92,7 +92,7 @@ const PengumumanAdmin = () => {
     const { value: formValues } = await Swal.fire({
       title: '<span class="font-black uppercase tracking-tight text-slate-800">Edit Pengumuman</span>',
       html: `
-        <div class="space-y-4 text-left p-2">
+        <div class="space-y-4 text-left p-2 max-h-[65vh] overflow-y-auto">
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Judul Pengumuman</label>
             <input id="swal-title" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none font-bold text-slate-700" value="${item.title}">
@@ -176,7 +176,7 @@ const PengumumanAdmin = () => {
     Swal.fire({
       title: `<span class="font-black tracking-tight text-slate-800">${item.title}</span>`,
       html: `
-        <div class="text-left p-2 space-y-4">
+        <div class="text-left p-2 space-y-4 max-h-[65vh] overflow-y-auto">
           <div class="flex items-center gap-2">
             <span class="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[10px] font-bold uppercase tracking-widest leading-none">${item.category}</span>
             <span class="text-[10px] text-slate-400 font-mono font-bold">${item.date}</span>

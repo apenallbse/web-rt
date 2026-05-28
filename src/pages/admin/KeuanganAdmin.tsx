@@ -56,7 +56,7 @@ const KeuanganAdmin = () => {
     const { value: formValues } = await Swal.fire({
       title: `<span class="font-black uppercase tracking-tight text-slate-800">Edit Transaksi</span>`,
       html:
-        `<div class="space-y-4 text-left p-2">
+        `<div class="space-y-4 text-left p-2 max-h-[65vh] overflow-y-auto">
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Kategori</label>
             <input id="swal-input1" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none font-bold text-slate-700" value="${transaction.category}">
@@ -128,7 +128,7 @@ const KeuanganAdmin = () => {
     const { value: formValues } = await Swal.fire({
       title: `<span class="font-black uppercase tracking-tight text-slate-800">Catat ${type}</span>`,
       html:
-        `<div class="space-y-4 text-left p-2">
+        `<div class="space-y-4 text-left p-2 max-h-[65vh] overflow-y-auto">
           <div>
             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Kategori</label>
             <input id="swal-input1" class="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl outline-none font-bold text-slate-700" placeholder="Contoh: Iuran, Konsumsi, dll">

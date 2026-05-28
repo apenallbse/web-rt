@@ -33,12 +33,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = (email: string, password?: string): boolean => {
-    // Check if admin - Updated to new admin email
-    const isAdminEmail = email === 'admin@skyrt.id';
-    const role: UserRole = isAdminEmail ? 'admin' : 'warga';
+    const emailLower = email.toLowerCase();
+    const isAdminEmail = emailLower === 'admin@skyrt.id';
+    const isSekretarisEmail = emailLower === 'sekretaris@skyrt.id';
+    const isBendaharaEmail = emailLower === 'bendahara@skyrt.id';
     
-    // For admin, check password if provided
-    if (isAdminEmail) {
+    let role: UserRole = 'warga';
+    if (isAdminEmail) role = 'admin';
+    else if (isSekretarisEmail) role = 'sekretaris';
+    else if (isBendaharaEmail) role = 'bendahara';
+    
+    // For admin/pengurus, check password if provided
+    if (role !== 'warga') {
       const rtProfile = dbService.getRTProfile();
       if (password && password !== '123' && rtProfile.password && password !== rtProfile.password) {
         return false;
@@ -50,22 +56,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let userId = Math.random().toString(36).substr(2, 9);
 
     if (role === 'warga') {
-      const warga = dbService.getOrCreateWarga(email);
+      const warga = dbService.getOrCreateWarga(emailLower);
       
       // Validate password for warga if it exists
       if (warga.password && password && warga.password !== password) {
         return false;
       }
       
+      // If warga profile has role property from old updates, respect it but main roles are email based here
+      if (warga.role && (warga.role === 'sekretaris' || warga.role === 'bendahara')) {
+         role = warga.role;
+      }
+      
       wargaId = warga.id;
       userId = warga.id; 
     } else if (role === 'admin') {
       userId = 'admin-rt-01'; // Constant ID for admin
+    } else if (role === 'sekretaris') {
+      userId = 'sekretaris-01'; 
+    } else if (role === 'bendahara') {
+      userId = 'bendahara-01';
     }
     
     const userData: User = {
       id: userId,
-      email,
+      email: emailLower,
       role,
       wargaId
     };

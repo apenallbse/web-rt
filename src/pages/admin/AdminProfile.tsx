@@ -77,7 +77,7 @@ const AdminProfile = () => {
     const { value: selectedAvatar } = await Swal.fire({
       title: 'Pilih Avatar Ilustrasi',
       html: `
-        <div class="grid grid-cols-4 gap-4 p-4">
+        <div class="grid grid-cols-4 gap-4 p-4 max-h-[60vh] overflow-y-auto">
           ${ILLUSTRATION_AVATARS.map(url => `
             <div class="avatar-option cursor-pointer hover:scale-110 transition-transform" data-url="${url}">
               <img src="${url}" class="w-full h-full rounded-2xl bg-slate-50" />

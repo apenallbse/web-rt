@@ -249,7 +249,7 @@ const SuratAdmin = () => {
            <motion.div 
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white w-full max-w-xl rounded-[3rem] shadow-2xl p-10 relative"
+            className="bg-white w-full max-w-xl rounded-[3rem] shadow-2xl p-6 sm:p-10 relative overflow-y-auto max-h-[95vh] sm:max-h-[90vh]"
            >
               <button 
                 onClick={handleCloseModal}

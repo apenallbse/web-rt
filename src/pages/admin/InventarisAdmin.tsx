@@ -317,7 +317,7 @@ const InventarisAdmin = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-xl bg-white rounded-[3rem] shadow-2xl p-8 sm:p-10"
+              className="relative w-full max-w-xl bg-white rounded-[3rem] shadow-2xl p-6 sm:p-10 overflow-y-auto max-h-[95vh] sm:max-h-[90vh]"
             >
               <button 
                 onClick={() => setShowModal(false)}
