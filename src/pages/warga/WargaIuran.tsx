@@ -126,14 +126,120 @@ const WargaIuran = () => {
 
   const availableMonths = generateMonths();
 
+  const paidMonthsCount = availableMonths.filter(m => {
+    const item = userIurans.find(ir => ir.bulan === m);
+    return item?.status === 'lunas';
+  }).length;
+
+  const pendingMonthsCount = availableMonths.filter(m => {
+    const item = userIurans.find(ir => ir.bulan === m);
+    return item?.status === 'pending';
+  }).length;
+
+  const unpaidMonthsCount = availableMonths.length - paidMonthsCount - pendingMonthsCount;
+
+  const totalPaidAmount = userIurans
+    .filter(ir => availableMonths.includes(ir.bulan) && ir.status === 'lunas')
+    .reduce((sum, ir) => sum + (ir.jumlah || defaultNominal), 0);
+
+  const totalUnpaidAmount = unpaidMonthsCount * defaultNominal;
+
+  const roundedPercentage = Math.round((paidMonthsCount / availableMonths.length) * 100) || 0;
+
   return (
     <div className="space-y-8">
-      <div className="mb-8">
-        <h2 className="text-3xl font-black text-sky-dark mb-2">Riwayat Iuran</h2>
-        <p className="text-gray-500 font-medium">Pantau status pembayaran bulanan Anda</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
+        <div>
+          <h2 className="text-3xl font-black text-sky-dark mb-2">Iuran Saya</h2>
+          <p className="text-gray-500 font-medium">Pantau status pembayaran bulanan Anda secara real-time</p>
+        </div>
+        <div className="bg-sky-50 border border-sky-100 px-4 py-2 rounded-2xl flex items-center gap-2">
+          <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
+          <span className="text-xs font-black text-sky-dark font-mono uppercase tracking-wider">Status Terupdate</span>
+        </div>
       </div>
 
+      {/* Dashboard Status Ringkasan */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Card 1: Status Pembayaran */}
+        <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col justify-between space-y-4">
+          <div className="flex justify-between items-start">
+            <div className="space-y-1">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Kepatuhan Iuran</span>
+              <h3 className="text-2xl font-black text-slate-800">{paidMonthsCount} / {availableMonths.length} Bulan</h3>
+            </div>
+            <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
+              <CheckCircle size={20} />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+              <div 
+                className="bg-emerald-500 h-full rounded-full transition-all duration-1000" 
+                style={{ width: `${roundedPercentage}%` }}
+              ></div>
+            </div>
+            <div className="flex justify-between items-center text-xs font-bold">
+              <span className="text-emerald-600">Terbayar {roundedPercentage}%</span>
+              <span className="text-gray-400">{availableMonths.length - paidMonthsCount} Tersisa</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 2: Total Setoran */}
+        <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col justify-between space-y-4">
+          <div className="flex justify-between items-start">
+            <div className="space-y-1">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Terbayar</span>
+              <h3 className="text-2xl font-black text-slate-800">Rp {totalPaidAmount.toLocaleString('id-ID')}</h3>
+            </div>
+            <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
+              <Wallet size={20} />
+            </div>
+          </div>
+          <p className="text-xs font-medium text-slate-400">
+            Jumlah akumulasi iuran sukses untuk tahun ini.
+          </p>
+        </div>
+
+        {/* Card 3: Sisa Tagihan */}
+        <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm flex flex-col justify-between space-y-4">
+          <div className="flex justify-between items-start">
+            <div className="space-y-1">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sisa Tagihan</span>
+              <h3 className="text-2xl font-black text-slate-800">Rp {totalUnpaidAmount.toLocaleString('id-ID')}</h3>
+            </div>
+            <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl">
+              <Clock size={20} />
+            </div>
+          </div>
+          <p className="text-xs font-medium text-slate-400">
+            {unpaidMonthsCount} bulan belum terbayar atau lunas.
+          </p>
+        </div>
+      </div>
+
+      {pendingMonthsCount > 0 && (
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-blue-50 border border-blue-100 p-4 rounded-2xl flex items-center justify-between gap-4"
+        >
+          <div className="flex items-center gap-3">
+            <Clock size={20} className="text-blue-600 animate-pulse" />
+            <p className="text-sm font-bold text-blue-900">
+              Ada {pendingMonthsCount} pembayaran yang sedang dalam proses verifikasi oleh pengurus RT.
+            </p>
+          </div>
+          <span className="text-xs font-black text-blue-600 bg-white/60 px-3 py-1 rounded-xl">PENDING</span>
+        </motion.div>
+      )}
+
       <div className="bg-white rounded-[2rem] sm:rounded-[3rem] border border-gray-100 shadow-sm overflow-hidden">
+        <div className="p-6 md:p-8 border-b border-gray-50 flex items-center justify-between">
+          <h3 className="font-black text-sky-dark text-xl">Daftar Tagihan & Riwayat Bulanan</h3>
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-widest font-mono">Tahun {new Date().getFullYear()}</span>
+        </div>
         <div className="divide-y divide-gray-100">
           {availableMonths.map((bulan) => {
             const item = userIurans.find(ir => ir.bulan === bulan);

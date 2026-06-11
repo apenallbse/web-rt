@@ -12,32 +12,32 @@ const INITIAL_NOTIFICATION_SETTINGS: NotificationSettings = {
 
 const INITIAL_RT_PROFILE: RTProfile = {
   id: '33333333-3333-3333-3333-333333333333',
-  no_rt: '003',
-  nama_ketua: 'H. Sudirman, S.H.',
-  alamat: 'Jl. Melati Blok C No. 12, RT 006 / RW 015, Perumahan Teratai Putih',
-  telepon: '081234567890',
-  email: 'rt006@example.com',
-  nama_jalan: 'Jl. Melati Blok C',
-  no_rumah: '12',
-  rt: '006',
-  rw: '015',
-  kelurahan: 'Harapan Baru',
-  kecamatan: 'Bekasi Timur',
-  kota: 'Kota Bekasi',
-  provinsi: 'Jawa Barat',
-  kode_pos: '17112',
-  negara: 'Indonesia',
+  no_rt: '',
+  nama_ketua: '',
+  alamat: '',
+  telepon: '',
+  email: '',
+  nama_jalan: '',
+  no_rumah: '',
+  rt: '',
+  rw: '',
+  kelurahan: '',
+  kecamatan: '',
+  kota: '',
+  provinsi: '',
+  kode_pos: '',
+  negara: '',
   password: '123',
-  nama_aplikasi: 'RT 06 Teratai Putih',
+  nama_aplikasi: 'SkyRT',
   warna_utama: 'Sky Blue (#0ea5e9)',
   bahasa: 'Bahasa Indonesia',
   zona_waktu: 'WIB (Jakarta) GMT+7',
-  tentang_gambar: 'https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=1200',
-  tentang_teks: 'RT 06 digital lahir dari keresahan pengurus RT terhadap sistem administrasi yang masih manual dan sulit dipantau. Kami menghadirkan platform yang mempermudah transparansi keuangan dan pendataan warga secara efisien.',
-  tentang_judul: 'Solusi Digital \nUntuk Masa Depan.',
-  tentang_visi: 'Digitalisasi RT di seluruh Indonesia',
-  tentang_misi: 'Memberdayakan pengurus dengan alat modern',
-  tentang_nilai: 'Aman, Terpercaya, dan Transparan'
+  tentang_gambar: '',
+  tentang_teks: '',
+  tentang_judul: '',
+  tentang_visi: '',
+  tentang_misi: '',
+  tentang_nilai: ''
 };
 
 // Mock Initial Data
@@ -333,6 +333,35 @@ export const dbService = {
     localStorage.setItem('skyrt_agenda_v1', JSON.stringify([]));
     localStorage.setItem('skyrt_agenda_izin_v1', JSON.stringify([]));
     localStorage.setItem('skyrt_inventaris_v1', JSON.stringify([]));
+    localStorage.setItem('skyrt_rt_profile_v2', JSON.stringify({
+      id: '33333333-3333-3333-3333-333333333333',
+      no_rt: '',
+      nama_ketua: '',
+      alamat: '',
+      telepon: '',
+      email: '',
+      nama_jalan: '',
+      no_rumah: '',
+      rt: '',
+      rw: '',
+      kelurahan: '',
+      kecamatan: '',
+      kota: '',
+      provinsi: '',
+      kode_pos: '',
+      negara: '',
+      password: '123',
+      nama_aplikasi: 'SkyRT',
+      warna_utama: 'Sky Blue (#0ea5e9)',
+      bahasa: 'Bahasa Indonesia',
+      zona_waktu: 'WIB (Jakarta) GMT+7',
+      tentang_gambar: '',
+      tentang_teks: '',
+      tentang_judul: '',
+      tentang_visi: '',
+      tentang_misi: '',
+      tentang_nilai: ''
+    }));
     // Trigger custom event to notify components
     window.dispatchEvent(new Event('storage'));
   }
