@@ -41,80 +41,19 @@ const INITIAL_RT_PROFILE: RTProfile = {
 };
 
 // Mock Initial Data
-const INITIAL_WARGA: Warga[] = [
-  { id: '5d630519-f28c-4c23-804b-f82db98efd65', nama: 'Alex', email: 'alex@gmail.com', nik: '3210000000000003', alamat: 'Jl. Melati No. 5', no_hp: '081234567892', jenis_kelamin: 'Laki-laki', tanggal_lahir: '1995-01-01', kk_id: '9ea1fdf3-149a-4dca-9e10-f5ae4bd4302b' },
-  { id: '5f87e155-949f-41d1-a7f0-20bfbbbf6070', nama: 'Siti Aminah', email: 'siti@gmail.com', nik: '3210000000000002', alamat: 'Jl. Melati No. 2', no_hp: '081234567891', jenis_kelamin: 'Perempuan', tanggal_lahir: '1990-10-20', kk_id: '896ce341-56c7-46e5-9338-60d6a24c7907' },
-  { id: 'bac86f71-e39c-4c62-a693-db744492994e', nama: 'Budi Santoso', email: 'budi@gmail.com', nik: '3210000000000001', alamat: 'Jl. Melati No. 1', no_hp: '081234567890', jenis_kelamin: 'Laki-laki', tanggal_lahir: '1985-05-12', kk_id: 'fa58046e-25a9-4a13-873d-637c911bd990' },
-  { id: '3c38abe8-ed07-4fdf-91d4-21e256341760', nama: 'Warga Baru', email: 'warga.baru@skyrt.id', nik: '3210000000000004', alamat: 'Jl. Melati No. 4', no_hp: '081234567899', jenis_kelamin: 'Laki-laki', tanggal_lahir: '1995-01-01', kk_id: '7e02cecd-9b91-464e-8943-005f444cd770' },
-];
+const INITIAL_WARGA: Warga[] = [];
 
-const INITIAL_KK: KartuKeluarga[] = [
-  { id: '7e02cecd-9b91-464e-8943-005f444cd770', no_kk: '3201010101010003', kepala_keluarga: 'Apen', alamat: 'Jl. Melati No. 4' },
-  { id: '896ce341-56c7-46e5-9338-60d6a24c7907', no_kk: '3201010101010002', kepala_keluarga: 'Siti Aminah', alamat: 'Jl. Melati No. 2' },
-  { id: 'fa58046e-25a9-4a13-873d-637c911bd990', no_kk: '3201010101010001', kepala_keluarga: 'Budi Santoso', alamat: 'Jl. Melati No. 1' },
-  { id: '9ea1fdf3-149a-4dca-9e10-f5ae4bd4302b', no_kk: '3201010101010004', kepala_keluarga: 'Alex', alamat: 'Jl. Melati No. 5' },
-];
+const INITIAL_KK: KartuKeluarga[] = [];
 
-const INITIAL_IURAN: Iuran[] = [
-  { id: 'c56c9bff-151c-4c0a-aeb7-c7775f37b8e7', warga_id: '5d630519-f28c-4c23-804b-f82db98efd65', bulan: new Date().toISOString().slice(0, 7), jumlah: 50000, status: 'lunas', tanggal_bayar: new Date().toISOString().split('T')[0] },
-  { id: 'a7f00218-1d4f-4a1e-b610-6d6c26b87699', warga_id: '5f87e155-949f-41d1-a7f0-20bfbbbf6070', bulan: new Date().toISOString().slice(0, 7), jumlah: 50000, status: 'lunas', tanggal_bayar: new Date().toISOString().split('T')[0] },
-  { id: '16f552c5-9fc8-42eb-a95c-41a0f3c7a110', warga_id: 'bac86f71-e39c-4c62-a693-db744492994e', bulan: new Date().toISOString().slice(0, 7), jumlah: 50000, status: 'lunas', tanggal_bayar: new Date().toISOString().split('T')[0] },
-  { id: '35b52979-d348-479f-bc59-d19de7dc5edf', warga_id: '3c38abe8-ed07-4fdf-91d4-21e256341760', bulan: new Date().toISOString().slice(0, 7), jumlah: 50000, status: 'belum' },
-];
+const INITIAL_IURAN: Iuran[] = [];
 
-const INITIAL_SURAT: Surat[] = [
-  { id: '0aa79770-3c61-4c71-aca1-186dbf6ef59e', warga_id: '5d630519-f28c-4c23-804b-f82db98efd65', jenis_surat: 'Surat Pengantar Domisili', tanggal_pengajuan: '2026-04-10', keterangan: 'Untuk keperluan bank', status: 'disetujui' },
-  { id: '46900c31-3b17-45b5-89af-ce37f61d0a00', warga_id: '5f87e155-949f-41d1-a7f0-20bfbbbf6070', jenis_surat: 'Surat Keterangan Usaha', tanggal_pengajuan: '2026-04-20', keterangan: 'Daftar KUR', status: 'pending' },
-];
+const INITIAL_SURAT: Surat[] = [];
 
-const INITIAL_PENGUMUMAN = [
-  {
-    id: 1,
-    title: 'Pemutakhiran Data Warga 2026',
-    content: 'Harap segera memperbarui data KK dan domisili melalui aplikasi atau langsung menemui sekretaris RT.',
-    date: '2026-05-10',
-    status: 'Aktif',
-    category: 'Informasi',
-  },
-  {
-    id: 2,
-    title: 'Peringatan Hari Kemerdekaan',
-    content: 'Diharapkan partisipasi warga dalam lomba-lomba HUT RI ke-81 yang akan dilaksanakan Agustus mendatang.',
-    date: '2026-05-05',
-    status: 'Draft',
-    category: 'Kegiatan',
-  },
-];
+const INITIAL_PENGUMUMAN: any[] = [];
 
-const INITIAL_TRANSACTIONS = [
-  { id: 1, type: 'Masuk', category: 'Iuran Warga', amount: 1250000, date: '12 Mei 2026', note: 'Iuran bulan Mei gelombang 1' },
-  { id: 2, type: 'Keluar', category: 'Listrik Fasum', amount: 210000, date: '10 Mei 2026', note: 'Tagihan bulan April-Mei' },
-  { id: 3, type: 'Masuk', category: 'Donasi', amount: 500000, date: '08 Mei 2026', note: 'Donasi dari Bpk. Ahmad' },
-  { id: 4, type: 'Keluar', category: 'Alat Kebersihan', amount: 85000, date: '05 Mei 2026', note: 'Pembelian sapu lidi & pengki' },
-];
+const INITIAL_TRANSACTIONS: any[] = [];
 
-const INITIAL_AGENDA: Agenda[] = [
-  {
-    id: 1,
-    title: 'Kerja Bakti Lingkungan',
-    date: '2026-05-20',
-    time: '07:00 - 10:00',
-    location: 'Area Fasum RT 003',
-    description: 'Membersihkan selokan dan area taman bermain.',
-    participants: 'Pria Dewasa',
-    category: 'Kegiatan Rutin'
-  },
-  {
-    id: 2,
-    title: 'Posyandu Bulanan',
-    date: '2026-05-25',
-    time: '09:00 - 12:00',
-    location: 'Balai Warga',
-    description: 'Pemeriksaan rutin bayi dan balita.',
-    participants: 'Ibu & Balita',
-    category: 'Kegiatan Rutin'
-  },
-];
+const INITIAL_AGENDA: Agenda[] = [];
 
 const getStorage = <T,>(key: string, initial: T): T => {
   const saved = localStorage.getItem(key);
@@ -381,5 +320,20 @@ export const dbService = {
     const updated = all.filter(inv => inv.id !== id);
     dbService.saveInventaris(updated);
     return updated;
+  },
+
+  // Reset database to completely empty collections
+  resetDatabase: () => {
+    localStorage.setItem('skyrt_warga_v8', JSON.stringify([]));
+    localStorage.setItem('skyrt_kk_v8', JSON.stringify([]));
+    localStorage.setItem('skyrt_iuran_v8', JSON.stringify([]));
+    localStorage.setItem('skyrt_surat_v8', JSON.stringify([]));
+    localStorage.setItem('skyrt_transactions_v1', JSON.stringify([]));
+    localStorage.setItem('skyrt_pengumuman_v1', JSON.stringify([]));
+    localStorage.setItem('skyrt_agenda_v1', JSON.stringify([]));
+    localStorage.setItem('skyrt_agenda_izin_v1', JSON.stringify([]));
+    localStorage.setItem('skyrt_inventaris_v1', JSON.stringify([]));
+    // Trigger custom event to notify components
+    window.dispatchEvent(new Event('storage'));
   }
 };

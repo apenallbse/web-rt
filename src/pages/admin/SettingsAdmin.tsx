@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Settings, Users, Shield, Bell, Lock, Globe, Save, FileText, TrendingUp, Eye, EyeOff, Upload, Image, Wallet } from 'lucide-react';
+import { Settings, Users, Shield, Bell, Lock, Globe, Save, FileText, TrendingUp, Eye, EyeOff, Upload, Image, Wallet, ShieldAlert } from 'lucide-react';
 import Swal from 'sweetalert2';
 import WargaList from './WargaList';
 import { dbService } from '../../services/dbService';
@@ -553,6 +553,52 @@ const SettingsAdmin = () => {
                   >
                     <Lock size={18} /> Update Keamanan
                   </button>
+               </div>
+
+               <div className="pt-10 mt-10 border-t border-rose-100 space-y-4 text-left">
+                  <h4 className="text-xs font-black uppercase tracking-widest text-rose-500 border-b border-rose-50 pb-2 flex items-center gap-2">
+                     <ShieldAlert size={16} /> Danger Zone / Hapus Data Simulasi
+                  </h4>
+                  <div className="p-6 bg-rose-50/50 rounded-[2rem] border border-rose-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                     <div className="space-y-1">
+                        <p className="text-sm font-black text-rose-900">Kosongkan Semua Data (Mulai Baru)</p>
+                        <p className="text-xs text-rose-600/80 font-medium leading-relaxed">
+                          Menghapus seluruh data dummy / simulasi secara permanen (semua Warga, Kartu Keluarga, Iuran, Transaksi, Surat, Pengumuman, Agenda, dan Inventaris) agar Anda dapat menginput data riil RT Anda secara manual dari awal. Sesi admin Anda tetap aktif.
+                        </p>
+                     </div>
+                     <button 
+                       type="button"
+                       onClick={async () => {
+                         const confirm = await Swal.fire({
+                           title: 'Kosongkan Semua Data?',
+                           text: 'Tindakan ini akan menghapus semua database dummy secara permanen! Sesi login Admin Anda tetap aktif.',
+                           icon: 'warning',
+                           showCancelButton: true,
+                           confirmButtonColor: '#e11d48',
+                           cancelButtonColor: '#475569',
+                           confirmButtonText: 'Ya, Kosongkan!',
+                           cancelButtonText: 'Batal',
+                           customClass: { popup: 'rounded-[2rem]' }
+                         });
+
+                         if (confirm.isConfirmed) {
+                           dbService.resetDatabase();
+                           Swal.fire({
+                             icon: 'success',
+                             title: 'Database Bersih!',
+                             text: 'Semua data simulasi berhasil dikosongkan. Sistem siap menerima penginputan manual.',
+                             confirmButtonColor: '#0ea5e9',
+                             customClass: { popup: 'rounded-[2rem]' }
+                           }).then(() => {
+                             window.location.reload();
+                           });
+                         }
+                       }}
+                       className="px-6 py-4 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-bold text-xs uppercase tracking-widest transition-all cursor-pointer shadow-lg shadow-rose-200 shrink-0"
+                     >
+                       Kosongkan Data
+                     </button>
+                  </div>
                </div>
             </div>
           )}
